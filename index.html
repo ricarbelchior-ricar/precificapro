@@ -12,12 +12,17 @@
     <!-- html2pdf.js (Geração de PDF no navegador) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
-    <!-- MICROSOFT CLARITY (COLA O TEU SCRIPT DO CLARITY AQUI) -->
-
     <style>
         .blurred-text {
             filter: blur(6px);
             user-select: none;
+        }
+        /* Renderizador do PDF fora do ecrã */
+        #pdf-render-container {
+            position: absolute;
+            left: -9999px;
+            top: -9999px;
+            width: 750px;
         }
     </style>
 </head>
@@ -32,7 +37,7 @@
     <!-- CONTAINER PRINCIPAL -->
     <main class="max-w-4xl mx-auto w-full grid grid-cols-1 md:grid-cols-12 gap-6 flex-grow">
         
-        <!-- COLUNA 1: FORMULÁRIO DE CÁLCULO (EM REAIS) -->
+        <!-- COLUNA 1: FORMULÁRIO DE CÁLCULO -->
         <div class="md:col-span-6 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
             <h2 class="text-lg font-bold text-gray-900 mb-4">1. Inserir Dados do Produto</h2>
             
@@ -75,7 +80,7 @@
             </form>
         </div>
 
-        <!-- COLUNA 2: RESULTADOS (MARKUP VISÍVEL / REAIS BLOQUEADOS) -->
+        <!-- COLUNA 2: RESULTADOS -->
         <div class="md:col-span-6 space-y-6">
             
             <div id="result-box" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden">
@@ -90,27 +95,25 @@
 
                 <!-- CARDS SECUNDÁRIOS -->
                 <div class="grid grid-cols-2 gap-3 text-center mb-4">
-                    <!-- LUCRO LÍQUIDO EM R$ (BLOQUEADO) -->
                     <div class="bg-gray-50 p-3 rounded-xl border border-gray-100">
                         <span class="text-xs text-gray-500 block">Lucro Líquido</span>
                         <span id="res-profit" class="text-base font-bold text-gray-900 blurred-text">R$ 11,33</span>
                     </div>
-                    <!-- MULTIPLICADOR DE VENDA (DESBLOQUEADO / VISÍVEL) -->
                     <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100">
                         <span class="text-xs text-emerald-800 font-semibold block">Multiplicador Ideal (Markup)</span>
                         <span id="res-markup" class="text-base font-bold text-emerald-700">2.86x</span>
                     </div>
                 </div>
 
-                <!-- OVERLAY BLOQUEADO (€2,00) -->
+                <!-- OVERLAY BLOQUEADO (R$ 10,00) -->
                 <div id="locked-overlay" class="bg-indigo-50/90 backdrop-blur-sm border border-indigo-100 p-5 rounded-xl text-center">
                     <div class="text-xl mb-1">🔒</div>
                     <h3 class="text-sm font-bold text-indigo-950 mb-1">Valores em R$ & Relatório Bloqueados</h3>
                     <p class="text-gray-600 text-xs mb-4">Veja os valores exatos de venda em R$ e descarregue o relatório em PDF com DRE completa.</p>
                     
-                    <!-- NOVO TEXTO DO BOTÃO -->
-                    <a href="https://buy.stripe.com/fZu00i6jVaHD26W1gB4ow00" class="inline-block w-full py-3 bg-indigo-600 text-white font-bold text-sm rounded-xl hover:bg-indigo-700 transition shadow-md">
-                        Ver Preço Final & Baixar PDF (€2,00)
+                    <!-- LINK DO STRIPE ATUALIZADO (R$ 10,00 COM PIX) -->
+                    <a href="https://buy.stripe.com/dRmdR86jV6rn5j85wR4ow01" class="inline-block w-full py-3 bg-indigo-600 text-white font-bold text-sm rounded-xl hover:bg-indigo-700 transition shadow-md">
+                        Ver Preço Final & Baixar PDF (R$ 10,00)
                     </a>
                 </div>
 
@@ -134,38 +137,41 @@
         PrecificaPro © 2026 • Ferramenta Educacional de Precificação Financeira
     </footer>
 
-    <!-- TEMPLATE OCULTO PARA IMPRESSÃO DO PDF -->
-    <div class="hidden">
-        <div id="pdf-template" class="p-8 bg-white text-gray-900 font-sans">
-            <div class="border-b pb-4 mb-6 flex justify-between items-center">
+    <!-- TEMPLATE DO PDF FORA DO ECRÃ -->
+    <div id="pdf-render-container">
+        <div id="pdf-template" class="p-8 bg-white text-gray-900 font-sans border rounded-xl">
+            <div class="border-b pb-4 mb-6 flex justify-between items-center" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e5e7eb; padding-bottom: 12px;">
                 <div>
-                    <h1 class="text-2xl font-bold text-indigo-900">Relatório de Precificação - PrecificaPro</h1>
-                    <p class="text-xs text-gray-500">Análise Financeira de Margens e Custos para E-commerce</p>
+                    <h1 style="font-size: 22px; font-weight: bold; color: #312e81; margin: 0;">Relatório de Precificação - PrecificaPro</h1>
+                    <p style="font-size: 12px; color: #6b7280; margin: 2px 0 0 0;">Demonstrativo Financeiro de Margens para E-commerce</p>
                 </div>
-                <div class="text-right text-xs text-gray-400" id="pdf-date">Data: --/--/----</div>
+                <div style="font-size: 12px; color: #9ca3af;" id="pdf-date">Data: --/--/----</div>
             </div>
 
-            <div class="bg-gray-100 p-4 rounded-xl mb-6">
-                <span class="text-xs uppercase text-gray-500 font-bold">Preço de Venda Sugerido</span>
-                <div class="text-3xl font-extrabold text-indigo-600 mt-1" id="pdf-target-price">R$ 0,00</div>
+            <div style="background-color: #f3f4f6; padding: 16px; border-radius: 12px; margin-bottom: 24px;">
+                <span style="font-size: 11px; text-transform: uppercase; color: #6b7280; font-weight: bold;">Preço de Venda Sugerido</span>
+                <div style="font-size: 28px; font-weight: 800; color: #4f46e5; margin-top: 4px;" id="pdf-target-price">R$ 0,00</div>
             </div>
 
-            <h3 class="font-bold text-sm uppercase text-gray-700 mb-3 border-b pb-1">Demonstrativo de Custos & Lucro (DRE)</h3>
-            <table class="w-full text-xs text-left mb-6 border-collapse">
+            <h3 style="font-size: 14px; font-weight: bold; text-transform: uppercase; color: #374151; margin-bottom: 12px; border-bottom: 1px solid #e5e7eb; padding-bottom: 4px;">Demonstrativo de Custos & Lucro (DRE)</h3>
+            
+            <table style="width: 100%; font-size: 12px; border-collapse: collapse; margin-bottom: 24px;">
                 <thead>
-                    <tr class="bg-gray-200">
-                        <th class="p-2">Item</th>
-                        <th class="p-2 text-right">Valor (R$)</th>
+                    <tr style="background-color: #e5e7eb;">
+                        <th style="padding: 8px; text-align: left;">Item de Custo / Taxa</th>
+                        <th style="padding: 8px; text-align: right;">Valor (R$)</th>
                     </tr>
                 </thead>
-                <tbody id="pdf-table-body" class="divide-y divide-gray-200">
-                    <!-- Preenchido via JS -->
+                <tbody id="pdf-table-body">
+                    <!-- Preenchido dinamicamente via JS -->
                 </tbody>
             </table>
 
-            <p class="text-[10px] text-gray-400 text-center border-t pt-4">
-                Este relatório é uma simulação educacional gerada automaticamente pelo PrecificaPro.
-            </p>
+            <div style="border-top: 1px solid #e5e7eb; padding-top: 12px; text-align: center;">
+                <p style="font-size: 10px; color: #9ca3af; margin: 0;">
+                    Este relatório é um demonstrativo financeiro gerado automaticamente pelo PrecificaPro.
+                </p>
+            </div>
         </div>
     </div>
 
@@ -174,19 +180,17 @@
         let lastCalc = null;
         let isUnlocked = false;
 
-        // VERIFICA SE O PAGAMENTO FOI EFETUADO (COM VALIDADE DE 30 DIAS)
         const params = new URLSearchParams(window.location.search);
         const now = new Date().getTime();
         const savedExpiry = localStorage.getItem('precificapro_expires');
 
         if (params.get('unlocked') === 'true') {
             localStorage.setItem('precificapro_unlocked', 'true');
-            localStorage.setItem('precificapro_expires', (now + (30 * 24 * 60 * 60 * 1000)).toString()); // 30 Dias
+            localStorage.setItem('precificapro_expires', (now + (30 * 24 * 60 * 60 * 1000)).toString());
         }
 
         if (localStorage.getItem('precificapro_unlocked') === 'true') {
             if (savedExpiry && now > parseInt(savedExpiry)) {
-                // Expirou após 30 dias
                 localStorage.removeItem('precificapro_unlocked');
                 localStorage.removeItem('precificapro_expires');
             } else {
@@ -242,7 +246,7 @@
 
         function generatePDF() {
             if (!lastCalc) {
-                alert("Por favor, realize um cálculo na ferramenta antes de exportar o PDF.");
+                alert("Por favor, clique em 'Calcular Preço Ideal' antes de exportar o PDF.");
                 return;
             }
 
@@ -251,12 +255,12 @@
 
             const tbody = document.getElementById('pdf-table-body');
             tbody.innerHTML = `
-                <tr><td class="p-2">Custo Base do Produto</td><td class="p-2 text-right">${formatBRL(lastCalc.cost)}</td></tr>
-                <tr><td class="p-2">Frete / Envio</td><td class="p-2 text-right">${formatBRL(lastCalc.shipping)}</td></tr>
-                <tr><td class="p-2">Taxa Fixa</td><td class="p-2 text-right">${formatBRL(lastCalc.fixedFee)}</td></tr>
-                <tr><td class="p-2">Comissão / Plataforma (${(lastCalc.feePerc * 100).toFixed(1)}%)</td><td class="p-2 text-right">${formatBRL(lastCalc.targetPrice * lastCalc.feePerc)}</td></tr>
-                <tr><td class="p-2">Impostos / Simples (${(lastCalc.taxPerc * 100).toFixed(1)}%)</td><td class="p-2 text-right">${formatBRL(lastCalc.targetPrice * lastCalc.taxPerc)}</td></tr>
-                <tr class="font-bold bg-emerald-50"><td class="p-2 text-emerald-900">Lucro Líquido Final</td><td class="p-2 text-right text-emerald-900">${formatBRL(lastCalc.profit)}</td></tr>
+                <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 8px;">Custo Base do Produto</td><td style="padding: 8px; text-align: right;">${formatBRL(lastCalc.cost)}</td></tr>
+                <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 8px;">Frete / Envio</td><td style="padding: 8px; text-align: right;">${formatBRL(lastCalc.shipping)}</td></tr>
+                <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 8px;">Taxa Fixa da Venda</td><td style="padding: 8px; text-align: right;">${formatBRL(lastCalc.fixedFee)}</td></tr>
+                <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 8px;">Comissão Plataforma (${(lastCalc.feePerc * 100).toFixed(1)}%)</td><td style="padding: 8px; text-align: right;">${formatBRL(lastCalc.targetPrice * lastCalc.feePerc)}</td></tr>
+                <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 8px;">Impostos / Simples (${(lastCalc.taxPerc * 100).toFixed(1)}%)</td><td style="padding: 8px; text-align: right;">${formatBRL(lastCalc.targetPrice * lastCalc.taxPerc)}</td></tr>
+                <tr style="font-weight: bold; background-color: #ecfdf5;"><td style="padding: 10px; color: #065f46;">Lucro Líquido Final</td><td style="padding: 10px; text-align: right; color: #065f46;">${formatBRL(lastCalc.profit)}</td></tr>
             `;
 
             const element = document.getElementById('pdf-template');
@@ -264,7 +268,7 @@
                 margin: 10,
                 filename: 'Relatorio_Precificacao_PrecificaPro.pdf',
                 image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
+                html2canvas: { scale: 2, logging: false },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
@@ -273,6 +277,10 @@
 
         function formatBRL(val) {
             return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val || 0);
+        }
+
+        if (isUnlocked) {
+            revealResults();
         }
     </script>
 </body>
