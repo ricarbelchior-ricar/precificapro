@@ -73,13 +73,13 @@
             </form>
         </div>
 
-        <!-- COLUNA 2: RESULTADOS (DESFOCADOS EM R$ ATÉ PAGAR) -->
+        <!-- COLUNA 2: RESULTADOS (MARGEM LÍQUIDA VISÍVEL / REAIS BLOQUEADOS) -->
         <div class="md:col-span-6 space-y-6">
             
             <div id="result-box" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden">
                 <h2 class="text-lg font-bold text-gray-900 mb-3">2. Resumo da Precificação</h2>
                 
-                <!-- CARD PREÇO -->
+                <!-- CARD PREÇO (BLOQUEADO) -->
                 <div class="bg-gray-900 text-white p-5 rounded-xl text-center mb-4 relative">
                     <span class="text-xs text-gray-400 uppercase font-medium">Preço de Venda Recomendado</span>
                     <div id="res-target" class="text-3xl font-extrabold text-emerald-400 mt-1 blurred-text">R$ 56,67</div>
@@ -88,31 +88,33 @@
 
                 <!-- CARDS SECUNDÁRIOS -->
                 <div class="grid grid-cols-2 gap-3 text-center mb-4">
+                    <!-- LUCRO LÍQUIDO EM R$ (BLOQUEADO) -->
                     <div class="bg-gray-50 p-3 rounded-xl border border-gray-100">
                         <span class="text-xs text-gray-500 block">Lucro Líquido</span>
                         <span id="res-profit" class="text-base font-bold text-gray-900 blurred-text">R$ 11,33</span>
                     </div>
-                    <div class="bg-gray-50 p-3 rounded-xl border border-gray-100">
-                        <span class="text-xs text-gray-500 block">Margem Líquida</span>
-                        <span id="res-margin" class="text-base font-bold text-gray-900 blurred-text">20.0%</span>
+                    <!-- MARGEM LÍQUIDA % (DESBLOQUEADA / VISÍVEL) -->
+                    <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100">
+                        <span class="text-xs text-emerald-800 font-semibold block">Margem Líquida</span>
+                        <span id="res-margin" class="text-base font-bold text-emerald-700">20.0%</span>
                     </div>
                 </div>
 
-                <!-- OVERLAY BLOQUEADO (OFERTA €2,00) -->
+                <!-- OVERLAY BLOQUEADO (€2,00) -->
                 <div id="locked-overlay" class="bg-indigo-50/90 backdrop-blur-sm border border-indigo-100 p-5 rounded-xl text-center">
                     <div class="text-xl mb-1">🔒</div>
-                    <h3 class="text-sm font-bold text-indigo-950 mb-1">Resultado & Relatório Bloqueados</h3>
-                    <p class="text-gray-600 text-xs mb-4">Desbloqueie os valores exatos em R$ e descarregue o relatório em PDF com DRE detalhada.</p>
+                    <h3 class="text-sm font-bold text-indigo-950 mb-1">Valores em R$ & Relatório Bloqueados</h3>
+                    <p class="text-gray-600 text-xs mb-4">Veja os valores exatos de venda em R$ e descarregue o relatório em PDF com DRE completa.</p>
                     
                     <a href="https://buy.stripe.com/fZu00i6jVaHD26W1gB4ow00" class="inline-block w-full py-3 bg-indigo-600 text-white font-bold text-sm rounded-xl hover:bg-indigo-700 transition shadow-md">
-                        Desbloquear Resultado (€2,00)
+                        Desbloquear Valores em R$ (€2,00)
                     </a>
                 </div>
 
                 <!-- ZONA DESBLOQUEADA (PÓS-PAGAMENTO) -->
                 <div id="unlocked-zone" class="hidden bg-emerald-50 border border-emerald-200 p-5 rounded-xl text-center">
                     <div class="text-emerald-800 font-bold text-sm mb-1">🎉 Acesso Total Desbloqueado!</div>
-                    <p class="text-emerald-700 text-xs mb-4">Os valores estão visíveis acima. Pode também exportar a DRE oficial em PDF.</p>
+                    <p class="text-emerald-700 text-xs mb-4">Os valores em R$ estão visíveis acima. Pode também exportar a DRE oficial em PDF.</p>
                     
                     <button id="btn-pdf" class="w-full py-3 bg-emerald-600 text-white font-bold text-sm rounded-xl hover:bg-emerald-700 transition shadow-md flex items-center justify-center gap-2">
                         📄 Descarregar Relatório Completo em PDF
