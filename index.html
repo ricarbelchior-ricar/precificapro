@@ -73,7 +73,7 @@
             </form>
         </div>
 
-        <!-- COLUNA 2: RESULTADOS (MARGEM LÍQUIDA VISÍVEL / REAIS BLOQUEADOS) -->
+        <!-- COLUNA 2: RESULTADOS (MARKUP VISÍVEL / REAIS BLOQUEADOS) -->
         <div class="md:col-span-6 space-y-6">
             
             <div id="result-box" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden">
@@ -93,10 +93,10 @@
                         <span class="text-xs text-gray-500 block">Lucro Líquido</span>
                         <span id="res-profit" class="text-base font-bold text-gray-900 blurred-text">R$ 11,33</span>
                     </div>
-                    <!-- MARGEM LÍQUIDA % (DESBLOQUEADA / VISÍVEL) -->
+                    <!-- MULTIPLICADOR DE VENDA (DESBLOQUEADO / VISÍVEL) -->
                     <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100">
-                        <span class="text-xs text-emerald-800 font-semibold block">Margem Líquida</span>
-                        <span id="res-margin" class="text-base font-bold text-emerald-700">20.0%</span>
+                        <span class="text-xs text-emerald-800 font-semibold block">Multiplicador Ideal (Markup)</span>
+                        <span id="res-markup" class="text-base font-bold text-emerald-700">2.27x</span>
                     </div>
                 </div>
 
@@ -205,13 +205,14 @@
             const targetPrice = totalFixedCost / (1 - totalVariablePerc);
             const minPrice = totalFixedCost / (1 - (feePerc + taxPerc));
             const profit = targetPrice * marginPerc;
+            const markup = cost > 0 ? (targetPrice / cost) : 0;
 
-            lastCalc = { cost, shipping, fixedFee, feePerc, taxPerc, marginPerc, targetPrice, minPrice, profit };
+            lastCalc = { cost, shipping, fixedFee, feePerc, taxPerc, marginPerc, targetPrice, minPrice, profit, markup };
 
             document.getElementById('res-target').textContent = formatBRL(targetPrice);
             document.getElementById('res-min').textContent = formatBRL(minPrice);
             document.getElementById('res-profit').textContent = formatBRL(profit);
-            document.getElementById('res-margin').textContent = (marginPerc * 100).toFixed(1) + "%";
+            document.getElementById('res-markup').textContent = markup.toFixed(2) + "x";
 
             if (isUnlocked) {
                 revealResults();
