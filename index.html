@@ -12,6 +12,8 @@
     <!-- html2pdf.js (Geração de PDF no navegador) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
+    <!-- MICROSOFT CLARITY (COLA O TEU SCRIPT DO CLARITY AQUI) -->
+
     <style>
         .blurred-text {
             filter: blur(6px);
@@ -96,7 +98,7 @@
                     <!-- MULTIPLICADOR DE VENDA (DESBLOQUEADO / VISÍVEL) -->
                     <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100">
                         <span class="text-xs text-emerald-800 font-semibold block">Multiplicador Ideal (Markup)</span>
-                        <span id="res-markup" class="text-base font-bold text-emerald-700">2.27x</span>
+                        <span id="res-markup" class="text-base font-bold text-emerald-700">2.86x</span>
                     </div>
                 </div>
 
@@ -106,8 +108,9 @@
                     <h3 class="text-sm font-bold text-indigo-950 mb-1">Valores em R$ & Relatório Bloqueados</h3>
                     <p class="text-gray-600 text-xs mb-4">Veja os valores exatos de venda em R$ e descarregue o relatório em PDF com DRE completa.</p>
                     
+                    <!-- NOVO TEXTO DO BOTÃO -->
                     <a href="https://buy.stripe.com/fZu00i6jVaHD26W1gB4ow00" class="inline-block w-full py-3 bg-indigo-600 text-white font-bold text-sm rounded-xl hover:bg-indigo-700 transition shadow-md">
-                        Desbloquear Valores em R$ (€2,00)
+                        Ver Preço Final & Baixar PDF (€2,00)
                     </a>
                 </div>
 
@@ -171,12 +174,24 @@
         let lastCalc = null;
         let isUnlocked = false;
 
-        // VERIFICA SE O PAGAMENTO FOI EFETUADO
+        // VERIFICA SE O PAGAMENTO FOI EFETUADO (COM VALIDADE DE 30 DIAS)
         const params = new URLSearchParams(window.location.search);
-        if (params.get('unlocked') === 'true' || localStorage.getItem('precificapro_unlocked') === 'true') {
+        const now = new Date().getTime();
+        const savedExpiry = localStorage.getItem('precificapro_expires');
+
+        if (params.get('unlocked') === 'true') {
             localStorage.setItem('precificapro_unlocked', 'true');
-            isUnlocked = true;
-            revealResults();
+            localStorage.setItem('precificapro_expires', (now + (30 * 24 * 60 * 60 * 1000)).toString()); // 30 Dias
+        }
+
+        if (localStorage.getItem('precificapro_unlocked') === 'true') {
+            if (savedExpiry && now > parseInt(savedExpiry)) {
+                // Expirou após 30 dias
+                localStorage.removeItem('precificapro_unlocked');
+                localStorage.removeItem('precificapro_expires');
+            } else {
+                isUnlocked = true;
+            }
         }
 
         document.getElementById('calc-form').addEventListener('submit', function(e) {
