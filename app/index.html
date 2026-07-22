@@ -1,1 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PrecificaPro - Análise Financeira</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-800 antialiased min-h-screen flex items-center justify-center p-4">
+  <div class="max-w-md w-full bg-white rounded-2xl shadow-sm border border-gray-100 p-6 text-center">
+    <h1 class="text-2xl font-bold mb-1 text-gray-900">PrecificaPro</h1>
+    <p class="text-gray-500 text-sm mb-6">Análise e Precificação Automática</p>
 
+    <!-- Conteúdo Desbloqueado (Após Pagamento) -->
+    <div id="unlocked-content" class="hidden p-6 bg-green-50 border border-green-200 rounded-xl text-left">
+      <h2 class="text-lg font-semibold text-green-800">Relatório Premium Desbloqueado! 🎉</h2>
+      <p class="text-green-700 text-sm mt-2">Acesso total concedido aos relatórios e margens de precificação.</p>
+    </div>
+
+    <!-- Conteúdo Bloqueado (Checkout Stripe) -->
+    <div id="locked-content" class="p-6 bg-gray-50 border border-gray-200 rounded-xl">
+      <h2 class="text-lg font-semibold mb-2 text-gray-800">Obtenha o Relatório Completo</h2>
+      <p class="text-gray-600 text-sm mb-6">Desbloqueie o acesso total por apenas €9,99.</p>
+      <a
+        href="https://buy.stripe.com/fZu00i6jVaHD26W1gB4ow00"
+        class="inline-block w-full py-3 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 transition"
+      >
+        Comprar Acesso (€9,99)
+      </a>
+    </div>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('unlocked') === 'true' || localStorage.getItem('precificapro_unlocked') === 'true') {
+      localStorage.setItem('precificapro_unlocked', 'true');
+      document.getElementById('locked-content').classList.add('hidden');
+      document.getElementById('unlocked-content').classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>
