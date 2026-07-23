@@ -20,7 +20,7 @@ if (localStorage.getItem('precificapro_unlocked') === 'true') {
     }
 }
 
-// Inicialização dos Eventos após carregamento do DOM
+// Inicialização dos Eventos
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('calc-form');
     const pdfBtn = document.getElementById('btn-pdf');
@@ -61,8 +61,48 @@ function calculate() {
     document.getElementById('res-profit').textContent = formatBRL(profit);
     document.getElementById('res-markup').textContent = markup.toFixed(2) + "x";
 
+    // Preenche o template do PDF imediatamente após o cálculo
+    updatePDFTemplate(lastCalc);
+
     if (isUnlocked) {
         revealResults();
+    }
+}
+
+function updatePDFTemplate(calc) {
+    if (!calc) return;
+
+    document.getElementById('pdf-date').textContent = "Data: " + new Date().toLocaleDateString('pt-BR');
+    document.getElementById('pdf-target-price').textContent = formatBRL(calc.targetPrice);
+
+    const tbody = document.getElementById('pdf-table-body');
+    if (tbody) {
+        tbody.innerHTML = `
+            <tr style="border-bottom: 1px solid #e5e7eb;">
+                <td style="padding: 10px; text-align: left; font-size: 12px; color: #374151;">Custo Base do Produto</td>
+                <td style="padding: 10px; text-align: right; font-size: 12px; font-weight: bold; color: #111827;">${formatBRL(calc.cost)}</td>
+            </tr>
+            <tr style="border-bottom: 1px solid #e5e7eb;">
+                <td style="padding: 10px; text-align: left; font-size: 12px; color: #374151;">Frete / Envio</td>
+                <td style="padding: 10px; text-align: right; font-size: 12px; font-weight: bold; color: #111827;">${formatBRL(calc.shipping)}</td>
+            </tr>
+            <tr style="border-bottom: 1px solid #e5e7eb;">
+                <td style="padding: 10px; text-align: left; font-size: 12px; color: #374151;">Taxa Fixa da Venda</td>
+                <td style="padding: 10px; text-align: right; font-size: 12px; font-weight: bold; color: #111827;">${formatBRL(calc.fixedFee)}</td>
+            </tr>
+            <tr style="border-bottom: 1px solid #e5e7eb;">
+                <td style="padding: 10px; text-align: left; font-size: 12px; color: #374151;">Comissão Plataforma (${(calc.feePerc * 100).toFixed(1)}%)</td>
+                <td style="padding: 10px; text-align: right; font-size: 12px; font-weight: bold; color: #111827;">${formatBRL(calc.targetPrice * calc.feePerc)}</td>
+            </tr>
+            <tr style="border-bottom: 1px solid #e5e7eb;">
+                <td style="padding: 10px; text-align: left; font-size: 12px; color: #374151;">Impostos / Simples (${(calc.taxPerc * 100).toFixed(1)}%)</td>
+                <td style="padding: 10px; text-align: right; font-size: 12px; font-weight: bold; color: #111827;">${formatBRL(calc.targetPrice * calc.taxPerc)}</td>
+            </tr>
+            <tr style="background-color: #ecfdf5;">
+                <td style="padding: 12px; text-align: left; font-size: 13px; font-weight: bold; color: #065f46;">Lucro Líquido Final</td>
+                <td style="padding: 12px; text-align: right; font-size: 13px; font-weight: bold; color: #065f46;">${formatBRL(calc.profit)}</td>
+            </tr>
+        `;
     }
 }
 
@@ -84,57 +124,47 @@ async function generatePDF() {
     const originalBtnText = btnPdf ? btnPdf.innerHTML : '';
     if (btnPdf) btnPdf.innerHTML = "⏳ A gerar PDF...";
 
-    document.getElementById('pdf-date').textContent = "Data: " + new Date().toLocaleDateString('pt-BR');
-    document.getElementById('pdf-target-price').textContent = formatBRL(lastCalc.targetPrice);
+    // Garante que o conteúdo da tabela está atualizado
+    updatePDFTemplate(lastCalc);
 
-    const tbody = document.getElementById('pdf-table-body');
-    tbody.innerHTML = `
-        <tr style="border-bottom: 1px solid #e5e7eb;"><td style="padding: 10px 12px; text-align: left; font-size: 12px;">Custo Base do Produto</td><td style="padding: 10px 12px; text-align: right; font-size: 12px; font-weight: bold;">${formatBRL(lastCalc.cost)}</td></tr>
-        <tr style="border-bottom: 1px solid #e5e7eb;"><td style="padding: 10px 12px; text-align: left; font-size: 12px;">Frete / Envio</td><td style="padding: 10px 12px; text-align: right; font-size: 12px; font-weight: bold;">${formatBRL(lastCalc.shipping)}</td></tr>
-        <tr style="border-bottom: 1px solid #e5e7eb;"><td style="padding: 10px 12px; text-align: left; font-size: 12px;">Taxa Fixa da Venda</td><td style="padding: 10px 12px; text-align: right; font-size: 12px; font-weight: bold;">${formatBRL(lastCalc.fixedFee)}</td></tr>
-        <tr style="border-bottom: 1px solid #e5e7eb;"><td style="padding: 10px 12px; text-align: left; font-size: 12px;">Comissão Plataforma (${(lastCalc.feePerc * 100).toFixed(1)}%)</td><td style="padding: 10px 12px; text-align: right; font-size: 12px; font-weight: bold;">${formatBRL(lastCalc.targetPrice * lastCalc.feePerc)}</td></tr>
-        <tr style="border-bottom: 1px solid #e5e7eb;"><td style="padding: 10px 12px; text-align: left; font-size: 12px;">Impostos / Simples (${(lastCalc.taxPerc * 100).toFixed(1)}%)</td><td style="padding: 10px 12px; text-align: right; font-size: 12px; font-weight: bold;">${formatBRL(lastCalc.targetPrice * lastCalc.taxPerc)}</td></tr>
-        <tr style="background-color: #ecfdf5;"><td style="padding: 12px; text-align: left; font-size: 13px; font-weight: bold; color: #065f46;">Lucro Líquido Final</td><td style="padding: 12px; text-align: right; font-size: 13px; font-weight: bold; color: #065f46;">${formatBRL(lastCalc.profit)}</td></tr>
-    `;
+    const template = document.getElementById('pdf-template');
+    
+    // Cria um clone visível do relatório temporariamente no topo da página
+    const clone = template.cloneNode(true);
+    clone.style.display = 'block';
+    clone.style.width = '650px';
+    clone.style.padding = '24px';
+    clone.style.backgroundColor = '#ffffff';
+    clone.style.position = 'fixed';
+    clone.style.top = '0';
+    clone.style.left = '0';
+    clone.style.zIndex = '999999';
 
-    const container = document.getElementById('pdf-render-container');
-    const pdfTemplate = document.getElementById('pdf-template');
+    document.body.appendChild(clone);
 
-    // Traz o container para a zona visível do viewport durante o screenshot
-    container.style.position = 'fixed';
-    container.style.top = '0';
-    container.style.left = '0';
-    container.style.zIndex = '999999';
-    container.style.opacity = '1';
-    container.style.pointerEvents = 'auto';
-
-    // Aguarda o reflow de renderização do motor móvel
-    await new Promise(resolve => requestAnimationFrame(() => setTimeout(resolve, 300)));
+    // Pausa técnica para o browser móvel desenhar a tabela
+    await new Promise(resolve => setTimeout(resolve, 200));
 
     const opt = {
-        margin: [10, 10, 10, 10],
+        margin: 10,
         filename: 'Relatorio_Precificacao_PrecificaPro.pdf',
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: { 
             scale: 2, 
             logging: false, 
             useCORS: true,
-            width: 680,
-            windowWidth: 680
+            width: 650
         },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
     try {
-        await html2pdf().set(opt).from(pdfTemplate).save();
+        await html2pdf().set(opt).from(clone).save();
     } catch (err) {
         console.error("Erro ao gerar PDF:", err);
         alert("Ocorreu um erro ao gerar o PDF. Tente novamente.");
     } finally {
-        container.style.position = 'absolute';
-        container.style.left = '-9999px';
-        container.style.opacity = '0';
-        container.style.pointerEvents = 'none';
+        document.body.removeChild(clone);
         if (btnPdf) btnPdf.innerHTML = originalBtnText;
     }
 }
