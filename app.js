@@ -82,13 +82,35 @@ async function generatePDF() {
 
     const btnPdf = document.getElementById('btn-pdf');
     const originalBtnText = btnPdf ? btnPdf.innerHTML : '';
-    if (btnPdf) btnPdf.innerHTML = "⏳ A processar PDF...";
+    if (btnPdf) btnPdf.innerHTML = "⏳ A compilar documento...";
 
     const dataAtual = new Date().toLocaleDateString('pt-BR');
 
-    // Construção do layout físico com 700px fixos
-    const pdfHTML = `
-        <div style="font-family: Arial, sans-serif; color: #111827; background: #ffffff; width: 700px; padding: 40px; box-sizing: border-box;">
+    // 1. Cria o ecrã branco ("Flash") no topo de tudo
+    const overlay = document.createElement('div');
+    overlay.style.position = 'fixed';
+    overlay.style.top = '0';
+    overlay.style.left = '0';
+    overlay.style.width = '100vw';
+    overlay.style.height = '100vh';
+    overlay.style.backgroundColor = '#ffffff';
+    overlay.style.zIndex = '999999'; // A frente de TUDO no site
+    overlay.style.overflow = 'hidden';
+    overlay.style.display = 'flex';
+    overlay.style.justifyContent = 'center';
+    overlay.style.alignItems = 'flex-start';
+
+    // 2. Cria a folha com a largura exata de 700px (para não esmagar no telemóvel)
+    const pdfContainer = document.createElement('div');
+    pdfContainer.style.width = '700px';
+    pdfContainer.style.minWidth = '700px';
+    pdfContainer.style.padding = '30px';
+    pdfContainer.style.backgroundColor = '#ffffff';
+    pdfContainer.style.boxSizing = 'border-box';
+    
+    // Injeta a tabela
+    pdfContainer.innerHTML = `
+        <div style="font-family: Arial, sans-serif; color: #111827;">
             <div style="border-bottom: 2px solid #e5e7eb; padding-bottom: 12px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;">
                 <div>
                     <h1 style="font-size: 22px; font-weight: bold; color: #312e81; margin: 0;">Relatório de Precificação - PrecificaPro</h1>
@@ -127,23 +149,11 @@ async function generatePDF() {
         </div>
     `;
 
-    // 🏆 A MAGIA PARA MOBILE:
-    
-    // 1. Guarda a posição do scroll atual e vai para o topo
-    const scrollOriginal = window.scrollY;
-    window.scrollTo(0, 0);
+    overlay.appendChild(pdfContainer);
+    document.body.appendChild(overlay);
 
-    // 2. Cria o elemento físico, mas invisível atrás do site
-    const container = document.createElement('div');
-    container.innerHTML = pdfHTML;
-    container.style.position = 'absolute';
-    container.style.top = '0';
-    container.style.left = '0';
-    container.style.zIndex = '-9999'; // Fica escondido atrás do fundo
-    document.body.appendChild(container);
-
-    // 3. Aguarda meio segundo para o telemóvel calcular todas as alturas (render)
-    await new Promise(resolve => setTimeout(resolve, 500));
+    // Dá tempo ao browser para renderizar a tabela visível e fotografá-la (o user vê um mini flash)
+    await new Promise(resolve => setTimeout(resolve, 300));
 
     const opt = {
         margin:       10,
@@ -153,20 +163,19 @@ async function generatePDF() {
             scale: 2, 
             logging: false, 
             useCORS: true,
-            scrollY: 0 // Força a captura a partir do topo estrito
+            windowWidth: 700
         },
         jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
     try {
-        await html2pdf().set(opt).from(container).save();
+        await html2pdf().set(opt).from(pdfContainer).save();
     } catch (err) {
         console.error("Erro ao gerar PDF:", err);
         alert("Ocorreu um erro ao gerar o PDF. Tente novamente.");
     } finally {
-        // 4. Limpa a casa e volta a fazer scroll para onde o utilizador estava
-        document.body.removeChild(container);
-        window.scrollTo(0, scrollOriginal);
+        // Assim que tira a foto, destroi a página branca e volta ao normal!
+        document.body.removeChild(overlay);
         if (btnPdf) btnPdf.innerHTML = originalBtnText;
     }
 }
