@@ -1,0 +1,12 @@
+.blurred-text {
+    filter: blur(6px);
+    user-select: none;
+}
+
+/* Renderizador do PDF oculto por padrão */
+#pdf-render-container {
+    display: none;
+    width: 700px;
+    background-color: #ffffff;
+    padding: 24px;
+}
