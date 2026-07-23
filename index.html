@@ -1,167 +1,208 @@
 <!DOCTYPE html>
-<html lang="pt-BR" class="scroll-smooth">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PrecificaPro - Calculadora de Preço Mínimo & Relatórios</title>
-    <meta name="description" content="Calcule a margem exata, preço mínimo e gere relatórios de precificação automáticos.">
+    <title>PrecificaPro | Calculadora de Margens para E-commerce</title>
     
-    <!-- Tailwind CSS -->
+    <!-- Tailwind CSS (Estilos) -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Estilos Personalizados -->
-    <link rel="stylesheet" href="style.css">
-</head>
-<body class="bg-gray-50 text-gray-800 antialiased min-h-screen flex flex-col justify-between p-4 sm:p-6">
+    <!-- jsPDF (Para gerar o relatório PDF) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-    <!-- HEADER -->
-    <header class="max-w-4xl mx-auto w-full text-center my-6">
-        <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Precifica<span class="text-indigo-600">Pro</span></h1>
-        <p class="text-gray-500 text-sm mt-1">Análise Financeira, Margens Reais e Gerador de Relatórios para Marketplaces</p>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .blur-sm { filter: blur(6px); user-select: none; pointer-events: none; }
+    </style>
+</head>
+<body class="text-slate-800 antialiased pb-20">
+
+    <!-- Banner Offline -->
+    <div id="offline-banner" class="hidden bg-rose-600 text-white text-center py-2 text-sm font-semibold sticky top-0 z-50">
+        ⚠️ Sem conexão à Internet. Algumas funcionalidades estão limitadas.
+    </div>
+
+    <!-- Cabeçalho -->
+    <header class="text-center py-8 px-4">
+        <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">
+            Precifica<span class="text-indigo-600">Pro</span>
+        </h1>
+        <p class="text-sm text-slate-500 mt-2 max-w-md mx-auto">
+            Análise Financeira, Margens Reais e Gerador de Relatórios para Marketplaces
+        </p>
     </header>
 
-    <!-- CONTAINER PRINCIPAL -->
-    <main class="max-w-4xl mx-auto w-full grid grid-cols-1 md:grid-cols-12 gap-6 flex-grow">
+    <!-- Contentor Principal -->
+    <main class="max-w-4xl mx-auto px-4 sm:px-6">
         
-        <!-- COLUNA 1: FORMULÁRIO -->
-        <div class="md:col-span-6 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-            <h2 class="text-lg font-bold text-gray-900 mb-4">1. Inserir Dados do Produto</h2>
-            
-            <form id="calc-form" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-semibold text-gray-600 mb-1">Custo do Produto (R$)</label>
-                    <input type="number" id="cost" step="0.01" min="0" placeholder="25.00" required class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
-                </div>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">Frete / Envio (R$)</label>
-                        <input type="number" id="shipping" step="0.01" min="0" placeholder="5.00" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">Taxa Fixa / Venda (R$)</label>
-                        <input type="number" id="fixedFee" step="0.01" min="0" placeholder="4.00" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">Comissão / Plataforma (%)</label>
-                        <input type="number" id="fee" step="0.1" min="0" max="99" placeholder="14" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">Impostos / Simples (%)</label>
-                        <input type="number" id="tax" step="0.1" min="0" max="99" placeholder="6" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-semibold text-gray-600 mb-1">Margem de Lucro Desejada (%)</label>
-                    <input type="number" id="margin" step="0.1" min="0" max="99" placeholder="20" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
-                </div>
-
-                <button type="submit" class="w-full bg-indigo-600 text-white font-bold py-3 rounded-xl hover:bg-indigo-700 transition shadow-md mt-2">
-                    Calcular Preço Ideal
-                </button>
-            </form>
+        <!-- Notificação de Prova Social (FOMO) -->
+        <div id="fomo-banner" class="bg-indigo-50 border border-indigo-100 rounded-xl p-3 mb-6 flex items-center justify-center gap-2 text-xs sm:text-sm text-indigo-800 font-medium shadow-sm transition-all h-12">
+            <span class="relative flex h-3 w-3">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-3 w-3 bg-indigo-500"></span>
+            </span>
+            <span id="fomo-text" class="transition-opacity duration-300">Alguém acabou de simular um preço rentável...</span>
         </div>
 
-        <!-- COLUNA 2: RESULTADOS -->
-        <div class="md:col-span-6 space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
             
-            <div id="result-box" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden">
-                <h2 class="text-lg font-bold text-gray-900 mb-3">2. Resumo da Precificação</h2>
+            <!-- COLUNA ESQUERDA: Formulário de Input -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                <h2 class="text-lg font-bold mb-5 flex items-center gap-2">
+                    <span class="bg-indigo-100 text-indigo-700 w-6 h-6 rounded-full flex items-center justify-center text-sm">1</span>
+                    Inserir Dados do Produto
+                </h2>
                 
-                <!-- CARD PREÇO (BLOQUEADO) -->
-                <div class="bg-gray-900 text-white p-5 rounded-xl text-center mb-4 relative">
-                    <span class="text-xs text-gray-400 uppercase font-medium">Preço de Venda Recomendado</span>
-                    <div id="res-target" class="text-3xl font-extrabold text-emerald-400 mt-1 blurred-text">R$ 56,67</div>
-                    <span class="text-xs text-gray-400 block mt-1">Preço Mínimo (Break-even): <strong id="res-min" class="text-white blurred-text">R$ 42,50</strong></span>
-                </div>
+                <form id="calc-form" class="space-y-4">
+                    <!-- Campo Oculto para evitar erro no app.js -->
+                    <input type="hidden" id="cac" value="0">
 
-                <!-- CARDS SECUNDÁRIOS -->
-                <div class="grid grid-cols-2 gap-3 text-center mb-4">
-                    <div class="bg-gray-50 p-3 rounded-xl border border-gray-100">
-                        <span class="text-xs text-gray-500 block">Lucro Líquido</span>
-                        <span id="res-profit" class="text-base font-bold text-gray-900 blurred-text">R$ 11,33</span>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Custo do Produto (R$)</label>
+                        <input type="number" id="cost" step="0.01" class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none" placeholder="Ex: 25.00">
                     </div>
-                    <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100">
-                        <span class="text-xs text-emerald-800 font-semibold block">Multiplicador Ideal (Markup)</span>
-                        <span id="res-markup" class="text-base font-bold text-emerald-700">2.86x</span>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Frete / Envio (R$)</label>
+                            <input type="number" id="shipping" step="0.01" class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all outline-none" placeholder="Ex: 5.00">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Taxa Fixa / Venda (R$)</label>
+                            <input type="number" id="fixedFee" step="0.01" class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all outline-none" placeholder="Ex: 4.00">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Comissão / Plataforma (%)</label>
+                            <input type="number" id="fee" step="0.1" class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all outline-none" placeholder="Ex: 14">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Impostos / Simples (%)</label>
+                            <input type="number" id="tax" step="0.1" class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all outline-none" placeholder="Ex: 6">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Margem de Lucro Desejada (%)</label>
+                        <input type="number" id="margin" step="0.1" class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all outline-none" placeholder="Ex: 20">
+                    </div>
+
+                    <!-- Checkbox Legal -->
+                    <div class="pt-2 pb-2">
+                        <label class="flex items-start gap-2 cursor-pointer group">
+                            <input type="checkbox" id="legal-consent" class="mt-1 rounded text-indigo-600 focus:ring-indigo-500 border-slate-300">
+                            <span class="text-[10px] text-slate-500 leading-tight group-hover:text-slate-700 transition">
+                                Confirmo que os dados inseridos estão corretos. Compreendo que esta ferramenta tem fins educativos e os resultados são estimativas matemáticas.
+                            </span>
+                        </label>
+                    </div>
+
+                    <button type="button" id="btn-calculate" disabled onclick="executeCalculation()" class="w-full bg-slate-300 text-slate-500 font-bold py-3.5 px-6 rounded-xl shadow-sm transition duration-200 flex items-center justify-center gap-2 cursor-not-allowed">
+                        Calcular Preço Ideal
+                    </button>
+                </form>
+            </div>
+
+            <!-- COLUNA DIREITA: Resultados & Paywall -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col relative overflow-hidden">
+                <div class="flex justify-between items-center mb-5">
+                    <h2 class="text-lg font-bold flex items-center gap-2">
+                        <span class="bg-emerald-100 text-emerald-700 w-6 h-6 rounded-full flex items-center justify-center text-sm">2</span>
+                        Resumo da Precificação
+                    </h2>
+                    <span id="premium-badge" class="hidden bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2.5 py-0.5 rounded uppercase">Premium</span>
+                </div>
+
+                <!-- Contentor com Blur (Controlado pelo JS) -->
+                <div id="paywall-blur" class="flex-grow space-y-4 blur-sm transition-all duration-500">
+                    
+                    <div class="bg-slate-900 text-white p-5 rounded-2xl text-center shadow-inner relative overflow-hidden">
+                        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-400 to-teal-400"></div>
+                        <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold mb-1">Preço de Venda Recomendado</p>
+                        <div class="text-3xl font-black text-emerald-400 mb-1" id="res-target-price">R$ 0,00</div>
+                        <p class="text-xs text-slate-400">Preço Mínimo (Break-even): <span id="res-breakeven">R$ 0,00</span></p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-center">
+                            <p class="text-[10px] text-slate-500 uppercase font-bold mb-1">Lucro Líquido</p>
+                            <div class="text-xl font-extrabold text-slate-800" id="res-net-profit">R$ 0,00</div>
+                        </div>
+                        <div class="bg-emerald-50 p-4 rounded-2xl border border-emerald-100 text-center">
+                            <p class="text-[10px] text-emerald-600 uppercase font-bold mb-1">Margem Real</p>
+                            <div class="text-xl font-extrabold text-emerald-700" id="res-net-margin">0%</div>
+                        </div>
+                    </div>
+
+                    <!-- Caixa de Alerta (Lucro/Prejuízo) -->
+                    <div id="status-box" class="hidden"></div>
+                </div>
+
+                <!-- PAYWALL OVERLAY -->
+                <div id="paywall-overlay" class="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/60 backdrop-blur-[2px] p-6 text-center mt-12">
+                    <div class="bg-indigo-50 border border-indigo-100 w-full rounded-2xl p-6 shadow-xl relative overflow-hidden">
+                        <div class="text-2xl mb-2">🔒</div>
+                        <h3 class="text-sm sm:text-base font-bold text-slate-900 mb-2">Valores em R$ & Relatório Bloqueados</h3>
+                        <p class="text-xs text-slate-600 mb-5 leading-relaxed">
+                            Veja os valores exatos de venda em R$ e descarregue o relatório financeiro detalhado em PDF (DRE).
+                        </p>
+                        <button onclick="startStripeCheckout()" class="online-required w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg transition-transform transform hover:-translate-y-0.5 text-sm sm:text-base">
+                            Ver Preço Final & Baixar PDF (R$ 10,00)
+                        </button>
                     </div>
                 </div>
 
-                <!-- OVERLAY BLOQUEADO (R$ 10,00) -->
-                <div id="locked-overlay" class="bg-indigo-50/90 backdrop-blur-sm border border-indigo-100 p-5 rounded-xl text-center">
-                    <div class="text-xl mb-1">🔒</div>
-                    <h3 class="text-sm font-bold text-indigo-950 mb-1">Valores em R$ & Relatório Bloqueados</h3>
-                    <p class="text-gray-600 text-xs mb-4">Veja os valores exatos de venda em R$ e descarregue o relatório em PDF com DRE completa.</p>
-                    
-                    <a href="https://buy.stripe.com/dRmdR86jV6rn5j85wR4ow01" class="inline-block w-full py-3 bg-indigo-600 text-white font-bold text-sm rounded-xl hover:bg-indigo-700 transition shadow-md">
-                        Ver Preço Final & Baixar PDF (R$ 10,00)
-                    </a>
-                </div>
-
-                <!-- ZONA DESBLOQUEADA -->
-                <div id="unlocked-zone" class="hidden bg-emerald-50 border border-emerald-200 p-5 rounded-xl text-center">
-                    <div class="text-emerald-800 font-bold text-sm mb-1">🎉 Acesso Total Desbloqueado!</div>
-                    <p class="text-emerald-700 text-xs mb-4">Os valores em R$ estão visíveis acima. Pode também exportar a DRE oficial em PDF.</p>
-                    
-                    <button id="btn-pdf" class="w-full py-3 bg-emerald-600 text-white font-bold text-sm rounded-xl hover:bg-emerald-700 transition shadow-md flex items-center justify-center gap-2">
-                        📄 Descarregar Relatório Completo em PDF
+                <!-- Botão de Download PDF (Mostrado Apenas se Desbloqueado) -->
+                <div class="mt-4 hidden" id="btn-download-pdf">
+                    <button onclick="generatePDFReport()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl shadow transition text-sm flex items-center justify-center gap-2">
+                        📄 Baixar Relatório em PDF
                     </button>
                 </div>
-
             </div>
-
         </div>
+
+        <!-- ======================================================= -->
+        <!-- NOVO: LEAD MAGNET (CAPTURA DE E-MAILS LIGADA AO MAKE) -->
+        <!-- ======================================================= -->
+        <div class="mt-8 bg-gradient-to-br from-slate-900 to-indigo-950 text-white p-6 sm:p-8 rounded-2xl shadow-xl border border-indigo-500/20 relative overflow-hidden">
+            <!-- Efeito visual de fundo -->
+            <div class="absolute -right-10 -top-10 w-40 h-40 bg-indigo-500/20 blur-3xl rounded-full"></div>
+            
+            <div class="relative z-10">
+                <span class="bg-indigo-500/30 text-indigo-200 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider inline-block mb-3 border border-indigo-400/20">
+                    🎁 Guia Gratuito em PDF
+                </span>
+                <h3 class="text-lg sm:text-xl font-extrabold mb-1">Como Reduzir Taxas na Shopee e Mercado Livre</h3>
+                <p class="text-xs sm:text-sm text-slate-300 mt-1 mb-5 max-w-xl">
+                    Baixe o nosso checklist prático de 5 passos para enquadrar os seus produtos em tarifas reduzidas e aumentar a margem líquida.
+                </p>
+                <form id="lead-form" onsubmit="handleLeadSubmit(event)" class="flex flex-col sm:flex-row gap-3">
+                    <input type="email" id="lead-email" required placeholder="Digite o seu melhor e-mail..." class="flex-grow px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-all">
+                    <button type="submit" id="btn-lead" class="online-required bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-extrabold px-6 py-3 rounded-xl text-sm transition-transform transform hover:-translate-y-0.5 whitespace-nowrap shadow-lg shadow-emerald-500/30">
+                        Baixar Guia Grátis
+                    </button>
+                </form>
+            </div>
+        </div>
+
     </main>
 
-    <!-- FOOTER -->
-    <footer class="max-w-4xl mx-auto w-full text-center text-xs text-gray-400 py-6 border-t border-gray-200 mt-8">
-        PrecificaPro © 2026 • Ferramenta Educacional de Precificação Financeira
+    <footer class="text-center mt-12 text-xs text-slate-400">
+        <p>PrecificaPro © 2026 • Ferramenta Educacional de Precificação Financeira</p>
     </footer>
 
-    <!-- TEMPLATE DO PDF -->
-    <div id="pdf-render-container">
-        <div id="pdf-template" style="font-family: Arial, sans-serif; color: #111827; background: #ffffff;">
-            <div style="border-bottom: 2px solid #e5e7eb; padding-bottom: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
-                <div>
-                    <h1 style="font-size: 20px; font-weight: bold; color: #312e81; margin: 0;">Relatório de Precificação - PrecificaPro</h1>
-                    <p style="font-size: 11px; color: #6b7280; margin: 4px 0 0 0;">Demonstrativo Financeiro de Margens para E-commerce</p>
-                </div>
-                <div style="font-size: 11px; color: #9ca3af;" id="pdf-date">Data: --/--/----</div>
-            </div>
-
-            <div style="background-color: #f3f4f6; padding: 14px; border-radius: 8px; margin-bottom: 20px;">
-                <span style="font-size: 10px; text-transform: uppercase; color: #6b7280; font-weight: bold; display: block;">Preço de Venda Sugerido</span>
-                <div style="font-size: 26px; font-weight: 800; color: #4f46e5; margin-top: 4px;" id="pdf-target-price">R$ 0,00</div>
-            </div>
-
-            <h3 style="font-size: 13px; font-weight: bold; text-transform: uppercase; color: #374151; margin-bottom: 10px; border-bottom: 1px solid #e5e7eb; padding-bottom: 4px;">Demonstrativo de Custos & Lucro (DRE)</h3>
-            
-            <table style="width: 100%; font-size: 12px; border-collapse: collapse; margin-bottom: 20px;">
-                <thead>
-                    <tr style="background-color: #f3f4f6;">
-                        <th style="padding: 8px; text-align: left; border-bottom: 1px solid #d1d5db;">Item de Custo / Taxa</th>
-                        <th style="padding: 8px; text-align: right; border-bottom: 1px solid #d1d5db;">Valor (R$)</th>
-                    </tr>
-                </thead>
-                <tbody id="pdf-table-body">
-                    <!-- Preenchido via JS -->
-                </tbody>
-            </table>
-
-            <div style="border-top: 1px solid #e5e7eb; padding-top: 12px; text-align: center;">
-                <p style="font-size: 10px; color: #9ca3af; margin: 0;">
-                    Este relatório é um demonstrativo financeiro gerado automaticamente pelo PrecificaPro.
-                </p>
-            </div>
+    <!-- Sistema de Avisos (Toasts) -->
+    <div id="toast" class="fixed bottom-5 left-1/2 transform -translate-x-1/2 translate-y-20 opacity-0 transition-all duration-300 z-50 pointer-events-none w-[90%] max-w-sm">
+        <div id="toast-body" class="bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2 text-sm font-medium border border-slate-700">
+            <span id="toast-msg">Mensagem</span>
         </div>
     </div>
 
-    <!-- SCRIPTS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- Script Principal da Lógica -->
     <script src="app.js"></script>
 </body>
 </html>
