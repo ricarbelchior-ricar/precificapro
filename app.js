@@ -74,104 +74,115 @@ function revealResults() {
     if (unlockedZone) unlockedZone.classList.remove('hidden');
 }
 
-async function generatePDF() {
+// 🏆 RENDERIZAÇÃO VETORIAL NATIVA EM MEMÓRIA (SEM SCREENSHOTS OU HTML2CANVAS)
+function generatePDF() {
     if (!lastCalc) {
         alert("Por favor, clique em 'Calcular Preço Ideal' antes de exportar o PDF.");
         return;
     }
 
-    const btnPdf = document.getElementById('btn-pdf');
-    const originalBtnText = btnPdf ? btnPdf.innerHTML : '';
-    if (btnPdf) btnPdf.innerHTML = "⏳ A gerar relatório final...";
+    if (!window.jspdf || !window.jspdf.jsPDF) {
+        alert("Erro ao carregar o gerador de PDF. Verifique a ligação à internet.");
+        return;
+    }
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+    });
 
     const dataAtual = new Date().toLocaleDateString('pt-BR');
 
-    // 1. Guarda o scroll e sobe para o topo
-    const scrollOriginal = window.scrollY;
-    window.scrollTo(0, 0);
+    // 1. Cabeçalho
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(16);
+    doc.setTextColor(49, 46, 129); // #312e81
+    doc.text("Relatório de Precificação - PrecificaPro", 15, 20);
 
-    // 2. Cria o contentor com ALTURA FORÇADA GIGANTE (1500px) para não cortar em telemóveis!
-    const pdfContainer = document.createElement('div');
-    pdfContainer.style.position = 'absolute';
-    pdfContainer.style.top = '0';
-    pdfContainer.style.left = '0';
-    pdfContainer.style.width = '800px';
-    pdfContainer.style.height = '1500px'; // O TRUQUE MÁGICO CONTRA O CORTE
-    pdfContainer.style.backgroundColor = '#ffffff';
-    pdfContainer.style.zIndex = '999999';
-    pdfContainer.style.padding = '40px';
-    pdfContainer.style.boxSizing = 'border-box';
-    
-    pdfContainer.innerHTML = `
-        <div style="font-family: Arial, sans-serif; color: #111827;">
-            <div style="border-bottom: 2px solid #e5e7eb; padding-bottom: 12px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;">
-                <div>
-                    <h1 style="font-size: 22px; font-weight: bold; color: #312e81; margin: 0;">Relatório de Precificação - PrecificaPro</h1>
-                    <p style="font-size: 12px; color: #6b7280; margin: 4px 0 0 0;">Demonstrativo Financeiro de Margens para E-commerce</p>
-                </div>
-                <div style="font-size: 12px; color: #9ca3af;">Data: ${dataAtual}</div>
-            </div>
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.setTextColor(107, 114, 128); // #6b7280
+    doc.text("Demonstrativo Financeiro de Margens para E-commerce", 15, 26);
+    doc.text(`Data: ${dataAtual}`, 195, 20, { align: 'right' });
 
-            <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin-bottom: 24px;">
-                <span style="font-size: 12px; text-transform: uppercase; color: #6b7280; font-weight: bold; display: block;">Preço de Venda Sugerido</span>
-                <div style="font-size: 32px; font-weight: 800; color: #4f46e5; margin-top: 4px;">${formatBRL(lastCalc.targetPrice)}</div>
-            </div>
+    // Linha divisória do topo
+    doc.setDrawColor(229, 231, 235);
+    doc.setLineWidth(0.4);
+    doc.line(15, 30, 195, 30);
 
-            <h3 style="font-size: 15px; font-weight: bold; text-transform: uppercase; color: #374151; margin-bottom: 12px; border-bottom: 1px solid #e5e7eb; padding-bottom: 4px;">Demonstrativo de Custos & Lucro (DRE)</h3>
-            
-            <table style="width: 100%; font-size: 14px; border-collapse: collapse; margin-bottom: 24px;">
-                <thead>
-                    <tr style="background-color: #f3f4f6;">
-                        <th style="padding: 12px; text-align: left; border-bottom: 1px solid #d1d5db;">Item de Custo / Taxa</th>
-                        <th style="padding: 12px; text-align: right; border-bottom: 1px solid #d1d5db;">Valor (R$)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr style="border-bottom: 1px solid #e5e7eb;"><td style="padding: 12px; text-align: left;">Custo Base do Produto</td><td style="padding: 12px; text-align: right; font-weight: bold;">${formatBRL(lastCalc.cost)}</td></tr>
-                    <tr style="border-bottom: 1px solid #e5e7eb;"><td style="padding: 12px; text-align: left;">Frete / Envio</td><td style="padding: 12px; text-align: right; font-weight: bold;">${formatBRL(lastCalc.shipping)}</td></tr>
-                    <tr style="border-bottom: 1px solid #e5e7eb;"><td style="padding: 12px; text-align: left;">Taxa Fixa da Venda</td><td style="padding: 12px; text-align: right; font-weight: bold;">${formatBRL(lastCalc.fixedFee)}</td></tr>
-                    <tr style="border-bottom: 1px solid #e5e7eb;"><td style="padding: 12px; text-align: left;">Comissão Plataforma (${(lastCalc.feePerc * 100).toFixed(1)}%)</td><td style="padding: 12px; text-align: right; font-weight: bold;">${formatBRL(lastCalc.targetPrice * lastCalc.feePerc)}</td></tr>
-                    <tr style="border-bottom: 1px solid #e5e7eb;"><td style="padding: 12px; text-align: left;">Impostos / Simples (${(lastCalc.taxPerc * 100).toFixed(1)}%)</td><td style="padding: 12px; text-align: right; font-weight: bold;">${formatBRL(lastCalc.targetPrice * lastCalc.taxPerc)}</td></tr>
-                    <tr style="background-color: #ecfdf5;"><td style="padding: 16px; text-align: left; font-size: 15px; font-weight: bold; color: #065f46;">Lucro Líquido Final</td><td style="padding: 16px; text-align: right; font-size: 15px; font-weight: bold; color: #065f46;">${formatBRL(lastCalc.profit)}</td></tr>
-                </tbody>
-            </table>
+    // 2. Card Preço Sugerido
+    doc.setFillColor(243, 244, 246); // #f3f4f6
+    doc.roundedRect(15, 35, 180, 24, 3, 3, 'F');
 
-            <div style="border-top: 1px solid #e5e7eb; padding-top: 16px; text-align: center;">
-                <p style="font-size: 12px; color: #9ca3af; margin: 0;">Este relatório é um demonstrativo financeiro gerado automaticamente pelo PrecificaPro.</p>
-            </div>
-        </div>
-    `;
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8.5);
+    doc.setTextColor(107, 114, 128);
+    doc.text("PREÇO DE VENDA SUGERIDO", 20, 42);
 
-    document.body.appendChild(pdfContainer);
+    doc.setFontSize(20);
+    doc.setTextColor(79, 70, 229); // #4f46e5
+    doc.text(formatBRL(lastCalc.targetPrice), 20, 53);
 
-    // Dá o tempo de o telemóvel desenhar a "folha" gigante invisível
-    await new Promise(resolve => setTimeout(resolve, 350));
+    // 3. Título DRE
+    doc.setFontSize(10.5);
+    doc.setTextColor(55, 65, 81);
+    doc.text("DEMONSTRATIVO DE CUSTOS & LUCRO (DRE)", 15, 69);
+    doc.line(15, 71, 195, 71);
 
-    const opt = {
-        margin:       10,
-        filename:     'Relatorio_Precificacao_PrecificaPro.pdf',
-        image:        { type: 'jpeg', quality: 1 },
-        html2canvas:  { 
-            scale: 2, 
-            logging: false, 
-            useCORS: true,
-            scrollY: 0,
-            windowWidth: 800,
-            windowHeight: 1500 // DIZ AO MOTOR FOTOGRÁFICO PARA USAR 1500px EM VEZ DO ECRÃ DO TELEMÓVEL!
-        },
-        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
+    // 4. Tabela DRE
+    doc.setFillColor(243, 244, 246);
+    doc.rect(15, 75, 180, 8, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9.5);
+    doc.setTextColor(17, 24, 39);
+    doc.text("Item de Custo / Taxa", 20, 80.5);
+    doc.text("Valor (R$)", 190, 80.5, { align: 'right' });
 
-    try {
-        await html2pdf().set(opt).from(pdfContainer).save();
-    } catch (err) {
-        console.error("Erro ao gerar PDF:", err);
-        alert("Ocorreu um erro ao gerar o PDF. Tente novamente.");
-    } finally {
-        document.body.removeChild(pdfContainer);
-        window.scrollTo(0, scrollOriginal);
-        if (btnPdf) btnPdf.innerHTML = originalBtnText;
-    }
+    const rows = [
+        ["Custo Base do Produto", formatBRL(lastCalc.cost)],
+        ["Frete / Envio", formatBRL(lastCalc.shipping)],
+        ["Taxa Fixa da Venda", formatBRL(lastCalc.fixedFee)],
+        [`Comissão Plataforma (${(lastCalc.feePerc * 100).toFixed(1)}%)`, formatBRL(lastCalc.targetPrice * lastCalc.feePerc)],
+        [`Impostos / Simples (${(lastCalc.taxPerc * 100).toFixed(1)}%)`, formatBRL(lastCalc.targetPrice * lastCalc.taxPerc)]
+    ];
+
+    let y = 83;
+    doc.setFontSize(9);
+
+    rows.forEach(([label, value]) => {
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(55, 65, 81);
+        doc.text(label, 20, y + 6);
+        
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(17, 24, 39);
+        doc.text(value, 190, y + 6, { align: 'right' });
+
+        doc.setDrawColor(243, 244, 246);
+        doc.line(15, y + 9, 195, y + 9);
+        y += 9;
+    });
+
+    // Linha Final: Lucro Líquido
+    doc.setFillColor(236, 253, 245); // #ecfdf5
+    doc.rect(15, y + 2, 180, 10, 'F');
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    doc.setTextColor(6, 95, 70); // #065f46
+    doc.text("Lucro Líquido Final", 20, y + 8.5);
+    doc.text(formatBRL(lastCalc.profit), 190, y + 8.5, { align: 'right' });
+
+    // 5. Rodapé
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(156, 163, 175);
+    doc.text("Este relatório é um demonstrativo financeiro gerado automaticamente pelo PrecificaPro.", 105, y + 24, { align: 'center' });
+
+    // Transferência direta instantânea
+    doc.save('Relatorio_Precificacao_PrecificaPro.pdf');
 }
 
 function formatBRL(val) {
