@@ -82,26 +82,26 @@ async function generatePDF() {
 
     const btnPdf = document.getElementById('btn-pdf');
     const originalBtnText = btnPdf ? btnPdf.innerHTML : '';
-    if (btnPdf) btnPdf.innerHTML = "⏳ A preparar PDF...";
+    if (btnPdf) btnPdf.innerHTML = "⏳ A gerar relatório final...";
 
     const dataAtual = new Date().toLocaleDateString('pt-BR');
 
-    // 1. Memoriza o scroll atual e sobe tudo
+    // 1. Guarda o scroll e sobe para o topo
     const scrollOriginal = window.scrollY;
     window.scrollTo(0, 0);
 
-    // 2. Cria o container Absoluto (SEM LIMITES DE ALTURA)
+    // 2. Cria o contentor com ALTURA FORÇADA GIGANTE (1500px) para não cortar em telemóveis!
     const pdfContainer = document.createElement('div');
     pdfContainer.style.position = 'absolute';
     pdfContainer.style.top = '0';
     pdfContainer.style.left = '0';
-    pdfContainer.style.width = '750px';
+    pdfContainer.style.width = '800px';
+    pdfContainer.style.height = '1500px'; // O TRUQUE MÁGICO CONTRA O CORTE
     pdfContainer.style.backgroundColor = '#ffffff';
     pdfContainer.style.zIndex = '999999';
     pdfContainer.style.padding = '40px';
     pdfContainer.style.boxSizing = 'border-box';
     
-    // Injeta a tabela
     pdfContainer.innerHTML = `
         <div style="font-family: Arial, sans-serif; color: #111827;">
             <div style="border-bottom: 2px solid #e5e7eb; padding-bottom: 12px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;">
@@ -144,19 +144,20 @@ async function generatePDF() {
 
     document.body.appendChild(pdfContainer);
 
-    // Aguarda que o browser carregue todos os elementos na tela
+    // Dá o tempo de o telemóvel desenhar a "folha" gigante invisível
     await new Promise(resolve => setTimeout(resolve, 350));
 
     const opt = {
         margin:       10,
         filename:     'Relatorio_Precificacao_PrecificaPro.pdf',
-        image:        { type: 'jpeg', quality: 0.98 },
+        image:        { type: 'jpeg', quality: 1 },
         html2canvas:  { 
             scale: 2, 
             logging: false, 
             useCORS: true,
             scrollY: 0,
-            windowWidth: 750
+            windowWidth: 800,
+            windowHeight: 1500 // DIZ AO MOTOR FOTOGRÁFICO PARA USAR 1500px EM VEZ DO ECRÃ DO TELEMÓVEL!
         },
         jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
@@ -167,7 +168,6 @@ async function generatePDF() {
         console.error("Erro ao gerar PDF:", err);
         alert("Ocorreu um erro ao gerar o PDF. Tente novamente.");
     } finally {
-        // Remove a folha branca e devolve o scroll ao botão
         document.body.removeChild(pdfContainer);
         window.scrollTo(0, scrollOriginal);
         if (btnPdf) btnPdf.innerHTML = originalBtnText;
