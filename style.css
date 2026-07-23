@@ -3,10 +3,15 @@
     user-select: none;
 }
 
-/* Renderizador do PDF oculto por padrão */
+/* O container permanece sempre montado no DOM, mas oculto fora do viewport */
 #pdf-render-container {
-    display: none;
-    width: 700px;
+    position: absolute;
+    top: 0;
+    left: -9999px;
+    width: 680px;
     background-color: #ffffff;
     padding: 24px;
+    box-sizing: border-box;
+    opacity: 0;
+    pointer-events: none;
 }
