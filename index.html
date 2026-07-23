@@ -9,22 +9,8 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- html2pdf.js (Geração de PDF no navegador) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-
-    <style>
-        .blurred-text {
-            filter: blur(6px);
-            user-select: none;
-        }
-        /* Renderizador do PDF fora do ecrã */
-        #pdf-render-container {
-            position: absolute;
-            left: -9999px;
-            top: -9999px;
-            width: 750px;
-        }
-    </style>
+    <!-- Estilos Personalizados -->
+    <link rel="stylesheet" href="style.css">
 </head>
 <body class="bg-gray-50 text-gray-800 antialiased min-h-screen flex flex-col justify-between p-4 sm:p-6">
 
@@ -37,7 +23,7 @@
     <!-- CONTAINER PRINCIPAL -->
     <main class="max-w-4xl mx-auto w-full grid grid-cols-1 md:grid-cols-12 gap-6 flex-grow">
         
-        <!-- COLUNA 1: FORMULÁRIO DE CÁLCULO -->
+        <!-- COLUNA 1: FORMULÁRIO -->
         <div class="md:col-span-6 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
             <h2 class="text-lg font-bold text-gray-900 mb-4">1. Inserir Dados do Produto</h2>
             
@@ -111,13 +97,12 @@
                     <h3 class="text-sm font-bold text-indigo-950 mb-1">Valores em R$ & Relatório Bloqueados</h3>
                     <p class="text-gray-600 text-xs mb-4">Veja os valores exatos de venda em R$ e descarregue o relatório em PDF com DRE completa.</p>
                     
-                    <!-- LINK DO STRIPE ATUALIZADO (R$ 10,00 COM PIX) -->
                     <a href="https://buy.stripe.com/dRmdR86jV6rn5j85wR4ow01" class="inline-block w-full py-3 bg-indigo-600 text-white font-bold text-sm rounded-xl hover:bg-indigo-700 transition shadow-md">
                         Ver Preço Final & Baixar PDF (R$ 10,00)
                     </a>
                 </div>
 
-                <!-- ZONA DESBLOQUEADA (PÓS-PAGAMENTO) -->
+                <!-- ZONA DESBLOQUEADA -->
                 <div id="unlocked-zone" class="hidden bg-emerald-50 border border-emerald-200 p-5 rounded-xl text-center">
                     <div class="text-emerald-800 font-bold text-sm mb-1">🎉 Acesso Total Desbloqueado!</div>
                     <p class="text-emerald-700 text-xs mb-4">Os valores em R$ estão visíveis acima. Pode também exportar a DRE oficial em PDF.</p>
@@ -132,38 +117,38 @@
         </div>
     </main>
 
-    <!-- FOOTER LEGAL -->
+    <!-- FOOTER -->
     <footer class="max-w-4xl mx-auto w-full text-center text-xs text-gray-400 py-6 border-t border-gray-200 mt-8">
         PrecificaPro © 2026 • Ferramenta Educacional de Precificação Financeira
     </footer>
 
-    <!-- TEMPLATE DO PDF FORA DO ECRÃ -->
+    <!-- TEMPLATE DO PDF -->
     <div id="pdf-render-container">
-        <div id="pdf-template" class="p-8 bg-white text-gray-900 font-sans border rounded-xl">
-            <div class="border-b pb-4 mb-6 flex justify-between items-center" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e5e7eb; padding-bottom: 12px;">
+        <div id="pdf-template" style="font-family: Arial, sans-serif; color: #111827; background: #ffffff;">
+            <div style="border-bottom: 2px solid #e5e7eb; padding-bottom: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
                 <div>
-                    <h1 style="font-size: 22px; font-weight: bold; color: #312e81; margin: 0;">Relatório de Precificação - PrecificaPro</h1>
-                    <p style="font-size: 12px; color: #6b7280; margin: 2px 0 0 0;">Demonstrativo Financeiro de Margens para E-commerce</p>
+                    <h1 style="font-size: 20px; font-weight: bold; color: #312e81; margin: 0;">Relatório de Precificação - PrecificaPro</h1>
+                    <p style="font-size: 11px; color: #6b7280; margin: 4px 0 0 0;">Demonstrativo Financeiro de Margens para E-commerce</p>
                 </div>
-                <div style="font-size: 12px; color: #9ca3af;" id="pdf-date">Data: --/--/----</div>
+                <div style="font-size: 11px; color: #9ca3af;" id="pdf-date">Data: --/--/----</div>
             </div>
 
-            <div style="background-color: #f3f4f6; padding: 16px; border-radius: 12px; margin-bottom: 24px;">
-                <span style="font-size: 11px; text-transform: uppercase; color: #6b7280; font-weight: bold;">Preço de Venda Sugerido</span>
-                <div style="font-size: 28px; font-weight: 800; color: #4f46e5; margin-top: 4px;" id="pdf-target-price">R$ 0,00</div>
+            <div style="background-color: #f3f4f6; padding: 14px; border-radius: 8px; margin-bottom: 20px;">
+                <span style="font-size: 10px; text-transform: uppercase; color: #6b7280; font-weight: bold; display: block;">Preço de Venda Sugerido</span>
+                <div style="font-size: 26px; font-weight: 800; color: #4f46e5; margin-top: 4px;" id="pdf-target-price">R$ 0,00</div>
             </div>
 
-            <h3 style="font-size: 14px; font-weight: bold; text-transform: uppercase; color: #374151; margin-bottom: 12px; border-bottom: 1px solid #e5e7eb; padding-bottom: 4px;">Demonstrativo de Custos & Lucro (DRE)</h3>
+            <h3 style="font-size: 13px; font-weight: bold; text-transform: uppercase; color: #374151; margin-bottom: 10px; border-bottom: 1px solid #e5e7eb; padding-bottom: 4px;">Demonstrativo de Custos & Lucro (DRE)</h3>
             
-            <table style="width: 100%; font-size: 12px; border-collapse: collapse; margin-bottom: 24px;">
+            <table style="width: 100%; font-size: 12px; border-collapse: collapse; margin-bottom: 20px;">
                 <thead>
-                    <tr style="background-color: #e5e7eb;">
-                        <th style="padding: 8px; text-align: left;">Item de Custo / Taxa</th>
-                        <th style="padding: 8px; text-align: right;">Valor (R$)</th>
+                    <tr style="background-color: #f3f4f6;">
+                        <th style="padding: 8px; text-align: left; border-bottom: 1px solid #d1d5db;">Item de Custo / Taxa</th>
+                        <th style="padding: 8px; text-align: right; border-bottom: 1px solid #d1d5db;">Valor (R$)</th>
                     </tr>
                 </thead>
                 <tbody id="pdf-table-body">
-                    <!-- Preenchido dinamicamente via JS -->
+                    <!-- Preenchido via JS -->
                 </tbody>
             </table>
 
@@ -175,113 +160,8 @@
         </div>
     </div>
 
-    <!-- LÓGICA DE CÁLCULO E DESBLOQUEIO -->
-    <script>
-        let lastCalc = null;
-        let isUnlocked = false;
-
-        const params = new URLSearchParams(window.location.search);
-        const now = new Date().getTime();
-        const savedExpiry = localStorage.getItem('precificapro_expires');
-
-        if (params.get('unlocked') === 'true') {
-            localStorage.setItem('precificapro_unlocked', 'true');
-            localStorage.setItem('precificapro_expires', (now + (30 * 24 * 60 * 60 * 1000)).toString());
-        }
-
-        if (localStorage.getItem('precificapro_unlocked') === 'true') {
-            if (savedExpiry && now > parseInt(savedExpiry)) {
-                localStorage.removeItem('precificapro_unlocked');
-                localStorage.removeItem('precificapro_expires');
-            } else {
-                isUnlocked = true;
-            }
-        }
-
-        document.getElementById('calc-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            calculate();
-        });
-
-        document.getElementById('btn-pdf').addEventListener('click', generatePDF);
-
-        function calculate() {
-            const cost = parseFloat(document.getElementById('cost').value) || 0;
-            const shipping = parseFloat(document.getElementById('shipping').value) || 0;
-            const fixedFee = parseFloat(document.getElementById('fixedFee').value) || 0;
-            const feePerc = (parseFloat(document.getElementById('fee').value) || 0) / 100;
-            const taxPerc = (parseFloat(document.getElementById('tax').value) || 0) / 100;
-            const marginPerc = (parseFloat(document.getElementById('margin').value) || 0) / 100;
-
-            const totalFixedCost = cost + shipping + fixedFee;
-            const totalVariablePerc = feePerc + taxPerc + marginPerc;
-
-            if (totalVariablePerc >= 1) {
-                alert("A soma das taxas (%) e margem não pode ultrapassar 100%.");
-                return;
-            }
-
-            const targetPrice = totalFixedCost / (1 - totalVariablePerc);
-            const minPrice = totalFixedCost / (1 - (feePerc + taxPerc));
-            const profit = targetPrice * marginPerc;
-            const markup = cost > 0 ? (targetPrice / cost) : 0;
-
-            lastCalc = { cost, shipping, fixedFee, feePerc, taxPerc, marginPerc, targetPrice, minPrice, profit, markup };
-
-            document.getElementById('res-target').textContent = formatBRL(targetPrice);
-            document.getElementById('res-min').textContent = formatBRL(minPrice);
-            document.getElementById('res-profit').textContent = formatBRL(profit);
-            document.getElementById('res-markup').textContent = markup.toFixed(2) + "x";
-
-            if (isUnlocked) {
-                revealResults();
-            }
-        }
-
-        function revealResults() {
-            document.querySelectorAll('.blurred-text').forEach(el => el.classList.remove('blurred-text'));
-            document.getElementById('locked-overlay').classList.add('hidden');
-            document.getElementById('unlocked-zone').classList.remove('hidden');
-        }
-
-        function generatePDF() {
-            if (!lastCalc) {
-                alert("Por favor, clique em 'Calcular Preço Ideal' antes de exportar o PDF.");
-                return;
-            }
-
-            document.getElementById('pdf-date').textContent = "Data: " + new Date().toLocaleDateString('pt-BR');
-            document.getElementById('pdf-target-price').textContent = formatBRL(lastCalc.targetPrice);
-
-            const tbody = document.getElementById('pdf-table-body');
-            tbody.innerHTML = `
-                <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 8px;">Custo Base do Produto</td><td style="padding: 8px; text-align: right;">${formatBRL(lastCalc.cost)}</td></tr>
-                <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 8px;">Frete / Envio</td><td style="padding: 8px; text-align: right;">${formatBRL(lastCalc.shipping)}</td></tr>
-                <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 8px;">Taxa Fixa da Venda</td><td style="padding: 8px; text-align: right;">${formatBRL(lastCalc.fixedFee)}</td></tr>
-                <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 8px;">Comissão Plataforma (${(lastCalc.feePerc * 100).toFixed(1)}%)</td><td style="padding: 8px; text-align: right;">${formatBRL(lastCalc.targetPrice * lastCalc.feePerc)}</td></tr>
-                <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 8px;">Impostos / Simples (${(lastCalc.taxPerc * 100).toFixed(1)}%)</td><td style="padding: 8px; text-align: right;">${formatBRL(lastCalc.targetPrice * lastCalc.taxPerc)}</td></tr>
-                <tr style="font-weight: bold; background-color: #ecfdf5;"><td style="padding: 10px; color: #065f46;">Lucro Líquido Final</td><td style="padding: 10px; text-align: right; color: #065f46;">${formatBRL(lastCalc.profit)}</td></tr>
-            `;
-
-            const element = document.getElementById('pdf-template');
-            const opt = {
-                margin: 10,
-                filename: 'Relatorio_Precificacao_PrecificaPro.pdf',
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, logging: false },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
-
-            html2pdf().set(opt).from(element).save();
-        }
-
-        function formatBRL(val) {
-            return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val || 0);
-        }
-
-        if (isUnlocked) {
-            revealResults();
-        }
-    </script>
+    <!-- SCRIPTS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
