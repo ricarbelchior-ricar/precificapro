@@ -89,34 +89,27 @@ async function generatePDF() {
 
     const tbody = document.getElementById('pdf-table-body');
     tbody.innerHTML = `
-        <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 10px 12px; text-align: left;">Custo Base do Produto</td><td style="padding: 10px 12px; text-align: right; white-space: nowrap;">${formatBRL(lastCalc.cost)}</td></tr>
-        <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 10px 12px; text-align: left;">Frete / Envio</td><td style="padding: 10px 12px; text-align: right; white-space: nowrap;">${formatBRL(lastCalc.shipping)}</td></tr>
-        <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 10px 12px; text-align: left;">Taxa Fixa da Venda</td><td style="padding: 10px 12px; text-align: right; white-space: nowrap;">${formatBRL(lastCalc.fixedFee)}</td></tr>
-        <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 10px 12px; text-align: left;">Comissão Plataforma (${(lastCalc.feePerc * 100).toFixed(1)}%)</td><td style="padding: 10px 12px; text-align: right; white-space: nowrap;">${formatBRL(lastCalc.targetPrice * lastCalc.feePerc)}</td></tr>
-        <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 10px 12px; text-align: left;">Impostos / Simples (${(lastCalc.taxPerc * 100).toFixed(1)}%)</td><td style="padding: 10px 12px; text-align: right; white-space: nowrap;">${formatBRL(lastCalc.targetPrice * lastCalc.taxPerc)}</td></tr>
-        <tr style="font-weight: bold; background-color: #ecfdf5;"><td style="padding: 12px; color: #065f46; text-align: left;">Lucro Líquido Final</td><td style="padding: 12px; text-align: right; color: #065f46; white-space: nowrap;">${formatBRL(lastCalc.profit)}</td></tr>
+        <tr style="border-bottom: 1px solid #e5e7eb;"><td style="padding: 10px 12px; text-align: left; font-size: 12px;">Custo Base do Produto</td><td style="padding: 10px 12px; text-align: right; font-size: 12px; font-weight: bold;">${formatBRL(lastCalc.cost)}</td></tr>
+        <tr style="border-bottom: 1px solid #e5e7eb;"><td style="padding: 10px 12px; text-align: left; font-size: 12px;">Frete / Envio</td><td style="padding: 10px 12px; text-align: right; font-size: 12px; font-weight: bold;">${formatBRL(lastCalc.shipping)}</td></tr>
+        <tr style="border-bottom: 1px solid #e5e7eb;"><td style="padding: 10px 12px; text-align: left; font-size: 12px;">Taxa Fixa da Venda</td><td style="padding: 10px 12px; text-align: right; font-size: 12px; font-weight: bold;">${formatBRL(lastCalc.fixedFee)}</td></tr>
+        <tr style="border-bottom: 1px solid #e5e7eb;"><td style="padding: 10px 12px; text-align: left; font-size: 12px;">Comissão Plataforma (${(lastCalc.feePerc * 100).toFixed(1)}%)</td><td style="padding: 10px 12px; text-align: right; font-size: 12px; font-weight: bold;">${formatBRL(lastCalc.targetPrice * lastCalc.feePerc)}</td></tr>
+        <tr style="border-bottom: 1px solid #e5e7eb;"><td style="padding: 10px 12px; text-align: left; font-size: 12px;">Impostos / Simples (${(lastCalc.taxPerc * 100).toFixed(1)}%)</td><td style="padding: 10px 12px; text-align: right; font-size: 12px; font-weight: bold;">${formatBRL(lastCalc.targetPrice * lastCalc.taxPerc)}</td></tr>
+        <tr style="background-color: #ecfdf5;"><td style="padding: 12px; text-align: left; font-size: 13px; font-weight: bold; color: #065f46;">Lucro Líquido Final</td><td style="padding: 12px; text-align: right; font-size: 13px; font-weight: bold; color: #065f46;">${formatBRL(lastCalc.profit)}</td></tr>
     `;
 
     const container = document.getElementById('pdf-render-container');
     const pdfTemplate = document.getElementById('pdf-template');
 
-    // Força largura fixa de A4 (680px) independente da tela do celular
-    pdfTemplate.style.width = '680px';
-    pdfTemplate.style.maxWidth = '680px';
-    pdfTemplate.style.boxSizing = 'border-box';
-    pdfTemplate.style.padding = '20px';
-
-    container.style.display = 'block';
+    // Traz o container para a zona visível do viewport durante o screenshot
     container.style.position = 'fixed';
     container.style.top = '0';
     container.style.left = '0';
-    container.style.width = '720px'; // Largura do viewport de captura fixa
-    container.style.height = 'auto';
-    container.style.backgroundColor = '#ffffff';
-    container.style.zIndex = '99999';
+    container.style.zIndex = '999999';
+    container.style.opacity = '1';
+    container.style.pointerEvents = 'auto';
 
-    // Pausa para estabilidade de renderização no telemóvel
-    await new Promise(resolve => setTimeout(resolve, 250));
+    // Aguarda o reflow de renderização do motor móvel
+    await new Promise(resolve => requestAnimationFrame(() => setTimeout(resolve, 300)));
 
     const opt = {
         margin: [10, 10, 10, 10],
@@ -126,7 +119,8 @@ async function generatePDF() {
             scale: 2, 
             logging: false, 
             useCORS: true,
-            windowWidth: 750
+            width: 680,
+            windowWidth: 680
         },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
@@ -137,7 +131,10 @@ async function generatePDF() {
         console.error("Erro ao gerar PDF:", err);
         alert("Ocorreu um erro ao gerar o PDF. Tente novamente.");
     } finally {
-        container.style.display = 'none';
+        container.style.position = 'absolute';
+        container.style.left = '-9999px';
+        container.style.opacity = '0';
+        container.style.pointerEvents = 'none';
         if (btnPdf) btnPdf.innerHTML = originalBtnText;
     }
 }
