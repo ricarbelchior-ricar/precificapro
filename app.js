@@ -82,30 +82,23 @@ async function generatePDF() {
 
     const btnPdf = document.getElementById('btn-pdf');
     const originalBtnText = btnPdf ? btnPdf.innerHTML : '';
-    if (btnPdf) btnPdf.innerHTML = "⏳ A compilar documento...";
+    if (btnPdf) btnPdf.innerHTML = "⏳ A preparar PDF...";
 
     const dataAtual = new Date().toLocaleDateString('pt-BR');
 
-    // 1. Cria o ecrã branco ("Flash") no topo de tudo
-    const overlay = document.createElement('div');
-    overlay.style.position = 'fixed';
-    overlay.style.top = '0';
-    overlay.style.left = '0';
-    overlay.style.width = '100vw';
-    overlay.style.height = '100vh';
-    overlay.style.backgroundColor = '#ffffff';
-    overlay.style.zIndex = '999999'; // A frente de TUDO no site
-    overlay.style.overflow = 'hidden';
-    overlay.style.display = 'flex';
-    overlay.style.justifyContent = 'center';
-    overlay.style.alignItems = 'flex-start';
+    // 1. Memoriza o scroll atual e sobe tudo
+    const scrollOriginal = window.scrollY;
+    window.scrollTo(0, 0);
 
-    // 2. Cria a folha com a largura exata de 700px (para não esmagar no telemóvel)
+    // 2. Cria o container Absoluto (SEM LIMITES DE ALTURA)
     const pdfContainer = document.createElement('div');
-    pdfContainer.style.width = '700px';
-    pdfContainer.style.minWidth = '700px';
-    pdfContainer.style.padding = '30px';
+    pdfContainer.style.position = 'absolute';
+    pdfContainer.style.top = '0';
+    pdfContainer.style.left = '0';
+    pdfContainer.style.width = '750px';
     pdfContainer.style.backgroundColor = '#ffffff';
+    pdfContainer.style.zIndex = '999999';
+    pdfContainer.style.padding = '40px';
     pdfContainer.style.boxSizing = 'border-box';
     
     // Injeta a tabela
@@ -149,11 +142,10 @@ async function generatePDF() {
         </div>
     `;
 
-    overlay.appendChild(pdfContainer);
-    document.body.appendChild(overlay);
+    document.body.appendChild(pdfContainer);
 
-    // Dá tempo ao browser para renderizar a tabela visível e fotografá-la (o user vê um mini flash)
-    await new Promise(resolve => setTimeout(resolve, 300));
+    // Aguarda que o browser carregue todos os elementos na tela
+    await new Promise(resolve => setTimeout(resolve, 350));
 
     const opt = {
         margin:       10,
@@ -163,7 +155,8 @@ async function generatePDF() {
             scale: 2, 
             logging: false, 
             useCORS: true,
-            windowWidth: 700
+            scrollY: 0,
+            windowWidth: 750
         },
         jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
@@ -174,8 +167,9 @@ async function generatePDF() {
         console.error("Erro ao gerar PDF:", err);
         alert("Ocorreu um erro ao gerar o PDF. Tente novamente.");
     } finally {
-        // Assim que tira a foto, destroi a página branca e volta ao normal!
-        document.body.removeChild(overlay);
+        // Remove a folha branca e devolve o scroll ao botão
+        document.body.removeChild(pdfContainer);
+        window.scrollTo(0, scrollOriginal);
         if (btnPdf) btnPdf.innerHTML = originalBtnText;
     }
 }
