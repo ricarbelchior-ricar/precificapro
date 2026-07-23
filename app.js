@@ -89,30 +89,34 @@ async function generatePDF() {
 
     const tbody = document.getElementById('pdf-table-body');
     tbody.innerHTML = `
-        <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 10px;">Custo Base do Produto</td><td style="padding: 10px; text-align: right;">${formatBRL(lastCalc.cost)}</td></tr>
-        <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 10px;">Frete / Envio</td><td style="padding: 10px; text-align: right;">${formatBRL(lastCalc.shipping)}</td></tr>
-        <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 10px;">Taxa Fixa da Venda</td><td style="padding: 10px; text-align: right;">${formatBRL(lastCalc.fixedFee)}</td></tr>
-        <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 10px;">Comissão Plataforma (${(lastCalc.feePerc * 100).toFixed(1)}%)</td><td style="padding: 10px; text-align: right;">${formatBRL(lastCalc.targetPrice * lastCalc.feePerc)}</td></tr>
-        <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 10px;">Impostos / Simples (${(lastCalc.taxPerc * 100).toFixed(1)}%)</td><td style="padding: 10px; text-align: right;">${formatBRL(lastCalc.targetPrice * lastCalc.taxPerc)}</td></tr>
-        <tr style="font-weight: bold; background-color: #ecfdf5;"><td style="padding: 12px; color: #065f46;">Lucro Líquido Final</td><td style="padding: 12px; text-align: right; color: #065f46;">${formatBRL(lastCalc.profit)}</td></tr>
+        <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 10px 12px; text-align: left;">Custo Base do Produto</td><td style="padding: 10px 12px; text-align: right; white-space: nowrap;">${formatBRL(lastCalc.cost)}</td></tr>
+        <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 10px 12px; text-align: left;">Frete / Envio</td><td style="padding: 10px 12px; text-align: right; white-space: nowrap;">${formatBRL(lastCalc.shipping)}</td></tr>
+        <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 10px 12px; text-align: left;">Taxa Fixa da Venda</td><td style="padding: 10px 12px; text-align: right; white-space: nowrap;">${formatBRL(lastCalc.fixedFee)}</td></tr>
+        <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 10px 12px; text-align: left;">Comissão Plataforma (${(lastCalc.feePerc * 100).toFixed(1)}%)</td><td style="padding: 10px 12px; text-align: right; white-space: nowrap;">${formatBRL(lastCalc.targetPrice * lastCalc.feePerc)}</td></tr>
+        <tr style="border-bottom: 1px solid #f3f4f6;"><td style="padding: 10px 12px; text-align: left;">Impostos / Simples (${(lastCalc.taxPerc * 100).toFixed(1)}%)</td><td style="padding: 10px 12px; text-align: right; white-space: nowrap;">${formatBRL(lastCalc.targetPrice * lastCalc.taxPerc)}</td></tr>
+        <tr style="font-weight: bold; background-color: #ecfdf5;"><td style="padding: 12px; color: #065f46; text-align: left;">Lucro Líquido Final</td><td style="padding: 12px; text-align: right; color: #065f46; white-space: nowrap;">${formatBRL(lastCalc.profit)}</td></tr>
     `;
 
     const container = document.getElementById('pdf-render-container');
     const pdfTemplate = document.getElementById('pdf-template');
 
-    // Coloca o container visível em primeiro plano (z-index topo) durante a captura
+    // Força largura fixa de A4 (680px) independente da tela do celular
+    pdfTemplate.style.width = '680px';
+    pdfTemplate.style.maxWidth = '680px';
+    pdfTemplate.style.boxSizing = 'border-box';
+    pdfTemplate.style.padding = '20px';
+
     container.style.display = 'block';
     container.style.position = 'fixed';
     container.style.top = '0';
     container.style.left = '0';
-    container.style.width = '100vw';
-    container.style.height = '100vh';
+    container.style.width = '720px'; // Largura do viewport de captura fixa
+    container.style.height = 'auto';
     container.style.backgroundColor = '#ffffff';
     container.style.zIndex = '99999';
-    container.style.overflow = 'auto';
 
-    // Pausa de 200ms para reflow do motor de renderização móvel
-    await new Promise(resolve => setTimeout(resolve, 200));
+    // Pausa para estabilidade de renderização no telemóvel
+    await new Promise(resolve => setTimeout(resolve, 250));
 
     const opt = {
         margin: [10, 10, 10, 10],
@@ -122,8 +126,6 @@ async function generatePDF() {
             scale: 2, 
             logging: false, 
             useCORS: true,
-            scrollX: 0,
-            scrollY: 0,
             windowWidth: 750
         },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
