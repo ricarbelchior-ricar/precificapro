@@ -82,14 +82,13 @@ async function generatePDF() {
 
     const btnPdf = document.getElementById('btn-pdf');
     const originalBtnText = btnPdf ? btnPdf.innerHTML : '';
-    if (btnPdf) btnPdf.innerHTML = "⏳ A compilar relatório...";
+    if (btnPdf) btnPdf.innerHTML = "⏳ A processar PDF...";
 
     const dataAtual = new Date().toLocaleDateString('pt-BR');
 
-    // 🏆 ARQUITETURA STRING-TO-PDF: O modelo é injetado diretamente na biblioteca,
-    // garantindo zero falhas de ecrã cortado ou páginas em branco em qualquer telemóvel!
+    // Construção do layout físico com 700px fixos
     const pdfHTML = `
-        <div style="font-family: Arial, sans-serif; color: #111827; background: #ffffff; width: 700px; padding: 20px; box-sizing: border-box;">
+        <div style="font-family: Arial, sans-serif; color: #111827; background: #ffffff; width: 700px; padding: 40px; box-sizing: border-box;">
             <div style="border-bottom: 2px solid #e5e7eb; padding-bottom: 12px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;">
                 <div>
                     <h1 style="font-size: 22px; font-weight: bold; color: #312e81; margin: 0;">Relatório de Precificação - PrecificaPro</h1>
@@ -98,18 +97,18 @@ async function generatePDF() {
                 <div style="font-size: 12px; color: #9ca3af;">Data: ${dataAtual}</div>
             </div>
 
-            <div style="background-color: #f3f4f6; padding: 18px; border-radius: 8px; margin-bottom: 24px;">
-                <span style="font-size: 11px; text-transform: uppercase; color: #6b7280; font-weight: bold; display: block;">Preço de Venda Sugerido</span>
-                <div style="font-size: 28px; font-weight: 800; color: #4f46e5; margin-top: 4px;">${formatBRL(lastCalc.targetPrice)}</div>
+            <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin-bottom: 24px;">
+                <span style="font-size: 12px; text-transform: uppercase; color: #6b7280; font-weight: bold; display: block;">Preço de Venda Sugerido</span>
+                <div style="font-size: 32px; font-weight: 800; color: #4f46e5; margin-top: 4px;">${formatBRL(lastCalc.targetPrice)}</div>
             </div>
 
-            <h3 style="font-size: 14px; font-weight: bold; text-transform: uppercase; color: #374151; margin-bottom: 12px; border-bottom: 1px solid #e5e7eb; padding-bottom: 4px;">Demonstrativo de Custos & Lucro (DRE)</h3>
+            <h3 style="font-size: 15px; font-weight: bold; text-transform: uppercase; color: #374151; margin-bottom: 12px; border-bottom: 1px solid #e5e7eb; padding-bottom: 4px;">Demonstrativo de Custos & Lucro (DRE)</h3>
             
-            <table style="width: 100%; font-size: 13px; border-collapse: collapse; margin-bottom: 24px;">
+            <table style="width: 100%; font-size: 14px; border-collapse: collapse; margin-bottom: 24px;">
                 <thead>
                     <tr style="background-color: #f3f4f6;">
-                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid #d1d5db;">Item de Custo / Taxa</th>
-                        <th style="padding: 10px; text-align: right; border-bottom: 1px solid #d1d5db;">Valor (R$)</th>
+                        <th style="padding: 12px; text-align: left; border-bottom: 1px solid #d1d5db;">Item de Custo / Taxa</th>
+                        <th style="padding: 12px; text-align: right; border-bottom: 1px solid #d1d5db;">Valor (R$)</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -118,15 +117,33 @@ async function generatePDF() {
                     <tr style="border-bottom: 1px solid #e5e7eb;"><td style="padding: 12px; text-align: left;">Taxa Fixa da Venda</td><td style="padding: 12px; text-align: right; font-weight: bold;">${formatBRL(lastCalc.fixedFee)}</td></tr>
                     <tr style="border-bottom: 1px solid #e5e7eb;"><td style="padding: 12px; text-align: left;">Comissão Plataforma (${(lastCalc.feePerc * 100).toFixed(1)}%)</td><td style="padding: 12px; text-align: right; font-weight: bold;">${formatBRL(lastCalc.targetPrice * lastCalc.feePerc)}</td></tr>
                     <tr style="border-bottom: 1px solid #e5e7eb;"><td style="padding: 12px; text-align: left;">Impostos / Simples (${(lastCalc.taxPerc * 100).toFixed(1)}%)</td><td style="padding: 12px; text-align: right; font-weight: bold;">${formatBRL(lastCalc.targetPrice * lastCalc.taxPerc)}</td></tr>
-                    <tr style="background-color: #ecfdf5;"><td style="padding: 14px; text-align: left; font-size: 14px; font-weight: bold; color: #065f46;">Lucro Líquido Final</td><td style="padding: 14px; text-align: right; font-size: 14px; font-weight: bold; color: #065f46;">${formatBRL(lastCalc.profit)}</td></tr>
+                    <tr style="background-color: #ecfdf5;"><td style="padding: 16px; text-align: left; font-size: 15px; font-weight: bold; color: #065f46;">Lucro Líquido Final</td><td style="padding: 16px; text-align: right; font-size: 15px; font-weight: bold; color: #065f46;">${formatBRL(lastCalc.profit)}</td></tr>
                 </tbody>
             </table>
 
             <div style="border-top: 1px solid #e5e7eb; padding-top: 16px; text-align: center;">
-                <p style="font-size: 11px; color: #9ca3af; margin: 0;">Este relatório é um demonstrativo financeiro gerado automaticamente pelo PrecificaPro.</p>
+                <p style="font-size: 12px; color: #9ca3af; margin: 0;">Este relatório é um demonstrativo financeiro gerado automaticamente pelo PrecificaPro.</p>
             </div>
         </div>
     `;
+
+    // 🏆 A MAGIA PARA MOBILE:
+    
+    // 1. Guarda a posição do scroll atual e vai para o topo
+    const scrollOriginal = window.scrollY;
+    window.scrollTo(0, 0);
+
+    // 2. Cria o elemento físico, mas invisível atrás do site
+    const container = document.createElement('div');
+    container.innerHTML = pdfHTML;
+    container.style.position = 'absolute';
+    container.style.top = '0';
+    container.style.left = '0';
+    container.style.zIndex = '-9999'; // Fica escondido atrás do fundo
+    document.body.appendChild(container);
+
+    // 3. Aguarda meio segundo para o telemóvel calcular todas as alturas (render)
+    await new Promise(resolve => setTimeout(resolve, 500));
 
     const opt = {
         margin:       10,
@@ -136,18 +153,20 @@ async function generatePDF() {
             scale: 2, 
             logging: false, 
             useCORS: true,
-            width: 700,
-            windowWidth: 700 
+            scrollY: 0 // Força a captura a partir do topo estrito
         },
         jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
     try {
-        await html2pdf().set(opt).from(pdfHTML).save();
+        await html2pdf().set(opt).from(container).save();
     } catch (err) {
         console.error("Erro ao gerar PDF:", err);
         alert("Ocorreu um erro ao gerar o PDF. Tente novamente.");
     } finally {
+        // 4. Limpa a casa e volta a fazer scroll para onde o utilizador estava
+        document.body.removeChild(container);
+        window.scrollTo(0, scrollOriginal);
         if (btnPdf) btnPdf.innerHTML = originalBtnText;
     }
 }
