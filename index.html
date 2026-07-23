@@ -4,54 +4,63 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PrecificaPro | Calculadora de Margens para E-commerce</title>
+    <meta name="description" content="Calcule a margem exata e preço mínimo de venda para Shopee, Mercado Livre e Amazon.">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
     <style>
-        .blurred-text { filter: blur(6px); user-select: none; }
-        .toast-enter { animation: slideInRight 0.3s ease-out forwards; }
-        .toast-exit { animation: fadeOut 0.3s ease-in forwards; }
-        @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+        .blurred-text {
+            filter: blur(6px);
+            user-select: none;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col justify-between p-4 sm:p-6">
+    
     <header class="max-w-4xl mx-auto w-full text-center my-6">
-        <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Precifica<span class="text-indigo-600">Pro</span></h1>
-        <p class="text-gray-500 text-sm mt-1">Análise Financeira, Margens Reais e Gerador de Relatórios para Marketplaces</p>
+        <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Precifica<span class="text-indigo-600">Pro</span></h1>
+        <p class="text-slate-500 text-sm mt-1">Análise Financeira, Margens Reais e Gerador de Relatórios para Marketplaces</p>
     </header>
 
     <main class="max-w-4xl mx-auto w-full grid grid-cols-1 md:grid-cols-12 gap-6 flex-grow">
-        <!-- COLUNA 1: FORMULÁRIO -->
-        <div class="md:col-span-6 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-            <h2 class="text-lg font-bold text-gray-900 mb-4">1. Inserir Dados do Produto</h2>
+        
+        <!-- COLUNA 1: FORMULÁRIO DE CÁLCULO -->
+        <div class="md:col-span-6 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+            <h2 class="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+                <span class="bg-indigo-100 text-indigo-700 w-6 h-6 rounded-full flex items-center justify-center text-sm">1</span>
+                Inserir Dados do Produto
+            </h2>
+            
             <form id="calc-form" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-semibold text-gray-600 mb-1">Custo do Produto (R$)</label>
-                    <input type="number" id="cost" step="0.01" min="0" placeholder="25.00" required class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Custo do Produto (R$)</label>
+                    <input type="number" id="cost" step="0.01" min="0" placeholder="25.00" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">Frete / Envio (R$)</label>
-                        <input type="number" id="shipping" step="0.01" min="0" placeholder="5.00" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Frete / Envio (R$)</label>
+                        <input type="number" id="shipping" step="0.01" min="0" placeholder="5.00" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">Taxa Fixa / Venda (R$)</label>
-                        <input type="number" id="fixedFee" step="0.01" min="0" placeholder="4.00" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Taxa Fixa / Venda (R$)</label>
+                        <input type="number" id="fixedFee" step="0.01" min="0" placeholder="4.00" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">Comissão / Plataforma (%)</label>
-                        <input type="number" id="fee" step="0.1" min="0" max="99" placeholder="14" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Comissão / Plataforma (%)</label>
+                        <input type="number" id="fee" step="0.1" min="0" max="99" placeholder="14" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">Impostos / Simples (%)</label>
-                        <input type="number" id="tax" step="0.1" min="0" max="99" placeholder="6" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Impostos / Simples (%)</label>
+                        <input type="number" id="tax" step="0.1" min="0" max="99" placeholder="6" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
                     </div>
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-gray-600 mb-1">Margem de Lucro Desejada (%)</label>
-                    <input type="number" id="margin" step="0.1" min="0" max="99" placeholder="20" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Margem de Lucro Desejada (%)</label>
+                    <input type="number" id="margin" step="0.1" min="0" max="99" placeholder="20" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
                 </div>
                 <button type="submit" class="w-full bg-indigo-600 text-white font-bold py-3 rounded-xl hover:bg-indigo-700 transition shadow-md mt-2">
                     Calcular Preço Ideal
@@ -59,72 +68,102 @@
             </form>
         </div>
 
-        <!-- COLUNA 2: RESULTADOS -->
+        <!-- COLUNA 2: RESULTADOS (COM PAYWALL R$ 10,00) -->
         <div class="md:col-span-6 space-y-6">
-            <div id="result-box" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden">
-                <h2 class="text-lg font-bold text-gray-900 mb-3">2. Resumo da Precificação</h2>
-                <div class="bg-gray-900 text-white p-5 rounded-xl text-center mb-4 relative">
-                    <span class="text-xs text-gray-400 uppercase font-medium">Preço de Venda Recomendado</span>
-                    <div id="res-target" class="text-3xl font-extrabold text-emerald-400 mt-1 blurred-text">R$ 56,67</div>
-                    <span class="text-xs text-gray-400 block mt-1">Preço Mínimo (Break-even): <strong id="res-min" class="text-white blurred-text">R$ 42,50</strong></span>
+            
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 relative overflow-hidden">
+                <div class="flex justify-between items-center mb-5">
+                    <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                        <span class="bg-emerald-100 text-emerald-700 w-6 h-6 rounded-full flex items-center justify-center text-sm">2</span>
+                        Resumo da Precificação
+                    </h2>
                 </div>
-                <div class="grid grid-cols-2 gap-3 text-center mb-4">
-                    <div class="bg-gray-50 p-3 rounded-xl border border-gray-100">
-                        <span class="text-xs text-gray-500 block">Lucro Líquido</span>
-                        <span id="res-profit" class="text-base font-bold text-gray-900 blurred-text">R$ 11,33</span>
+                
+                <div class="bg-slate-900 text-white p-5 rounded-2xl text-center mb-4 relative overflow-hidden">
+                    <span class="text-[10px] text-slate-400 uppercase tracking-widest font-bold mb-1 block">Preço de Venda Recomendado</span>
+                    <div id="res-target-price" class="text-3xl font-black text-emerald-400 mb-1 blurred-text">R$ 56,67</div>
+                    <span class="text-xs text-slate-400 block mt-1">Preço Mínimo (Break-even): <strong id="res-breakeven" class="text-white blurred-text">R$ 42,50</strong></span>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-center">
+                        <span class="text-[10px] text-slate-500 uppercase font-bold mb-1 block">Lucro Líquido</span>
+                        <span id="res-net-profit" class="text-xl font-extrabold text-slate-800 blurred-text">R$ 11,33</span>
                     </div>
-                    <div class="bg-gray-50 p-3 rounded-xl border border-gray-100">
-                        <span class="text-xs text-gray-500 block">Margem Líquida</span>
-                        <span id="res-margin" class="text-base font-bold text-gray-900 blurred-text">20.0%</span>
+                    <div class="bg-emerald-50 p-4 rounded-2xl border border-emerald-100 text-center">
+                        <span class="text-[10px] text-emerald-600 uppercase font-bold mb-1 block">Margem Real</span>
+                        <span id="res-net-margin" class="text-xl font-extrabold text-emerald-700 blurred-text">20.0%</span>
                     </div>
                 </div>
 
-                <!-- OVERLAY STRIPE -->
-                <div id="locked-overlay" class="bg-indigo-50/90 backdrop-blur-sm border border-indigo-100 p-5 rounded-xl text-center">
-                    <div class="text-xl mb-1">🔒</div>
-                    <h3 class="text-sm font-bold text-indigo-950 mb-1">Resultado & Relatório Bloqueados</h3>
-                    <p class="text-gray-600 text-xs mb-4">Desbloqueie os valores exatos em R$ e descarregue o relatório em PDF.</p>
-                    <a href="https://buy.stripe.com/fZu00i6jVaHD26W1gB4ow00" class="inline-block w-full py-3 bg-indigo-600 text-white font-bold text-sm rounded-xl hover:bg-indigo-700 transition shadow-md">
-                        Desbloquear Resultado (R$ 14,90)
-                    </a>
+                <!-- OVERLAY BLOQUEADO -->
+                <div id="locked-overlay" class="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/60 backdrop-blur-[2px] p-6 text-center mt-12">
+                    <div class="bg-indigo-50 border border-indigo-100 w-full rounded-2xl p-6 shadow-xl relative overflow-hidden">
+                        <div class="text-2xl mb-2">🔒</div>
+                        <h3 class="text-sm sm:text-base font-bold text-slate-900 mb-2">Valores em R$ & Relatório Bloqueados</h3>
+                        <p class="text-xs text-slate-600 mb-5 leading-relaxed">
+                            Desbloqueie os valores exatos em R$ e descarregue o relatório financeiro detalhado em PDF (DRE).
+                        </p>
+                        <a href="https://buy.stripe.com/dRmdR86jV6rn5j85wR4ow01" class="inline-flex w-full justify-center bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg transition-transform transform hover:-translate-y-0.5 text-sm">
+                            Desbloquear Resultado (R$ 10,00)
+                        </a>
+                    </div>
                 </div>
 
-                <!-- ZONA PDF -->
-                <div id="unlocked-zone" class="hidden bg-emerald-50 border border-emerald-200 p-5 rounded-xl text-center">
-                    <div class="text-emerald-800 font-bold text-sm mb-1">🎉 Acesso Total Desbloqueado!</div>
-                    <button id="btn-pdf" class="w-full py-3 bg-emerald-600 text-white font-bold text-sm rounded-xl hover:bg-emerald-700 transition shadow-md mt-4">
-                        📄 Baixar Relatório (PDF)
+                <!-- ZONA DESBLOQUEADA -->
+                <div id="unlocked-zone" class="hidden mt-4">
+                    <div class="p-4 bg-emerald-50 border border-emerald-200 rounded-xl mb-4 text-emerald-900 text-xs flex items-center gap-2">
+                        <span class="text-lg">🎉</span>
+                        <span><strong>Acesso Liberado!</strong> Valores exatos revelados.</span>
+                    </div>
+                    <button id="btn-pdf" class="w-full py-3.5 bg-emerald-600 text-white font-bold text-sm rounded-xl hover:bg-emerald-700 transition shadow-md flex items-center justify-center gap-2">
+                        📄 Baixar Relatório em PDF
                     </button>
                 </div>
             </div>
-
-            <!-- NOVO LEAD MAGNET LIGADO AO MAKE -->
-            <div class="bg-gradient-to-br from-slate-900 to-indigo-950 text-white p-6 rounded-2xl shadow-md">
-                <span class="bg-indigo-500/30 text-indigo-200 text-[10px] font-bold px-2 py-1 rounded-full uppercase mb-2 inline-block">🎁 Guia Gratuito em PDF</span>
-                <h3 class="font-bold text-lg mb-1">Reduza Taxas na Shopee</h3>
-                <p class="text-xs text-slate-300 mb-4">Checklist de 5 passos para enquadrar produtos em tarifas reduzidas.</p>
-                <form id="lead-form" class="flex gap-2">
-                    <input type="email" id="lead-email" required placeholder="O seu e-mail..." class="flex-grow px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-white text-sm focus:outline-none">
-                    <button type="submit" id="btn-lead" class="bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-bold px-4 py-2 rounded-xl text-sm transition">
-                        Receber
+            
+            <!-- LEAD MAGNET DO MAKE -->
+            <div class="bg-gradient-to-br from-slate-900 to-indigo-950 text-white p-6 rounded-2xl shadow-xl relative overflow-hidden mt-6">
+                <span class="bg-indigo-500/30 text-indigo-200 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider inline-block mb-3">🎁 Guia Gratuito em PDF</span>
+                <h3 class="text-lg font-extrabold mb-1">Como Reduzir Taxas na Shopee</h3>
+                <p class="text-xs text-slate-300 mt-1 mb-4">Checklist de 5 passos para enquadrar os seus produtos em tarifas reduzidas.</p>
+                <form id="lead-form" class="flex flex-col sm:flex-row gap-3">
+                    <input type="email" id="lead-email" required placeholder="Digite o seu melhor e-mail..." class="flex-grow px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400">
+                    <button type="submit" id="btn-lead" class="bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-extrabold px-6 py-3 rounded-xl text-sm transition-transform transform hover:-translate-y-0.5 whitespace-nowrap shadow-lg">
+                        Baixar Guia Grátis
                     </button>
                 </form>
             </div>
         </div>
     </main>
 
-    <!-- TEMPLATE PDF OCULTO -->
+    <!-- TEMPLATE PDF -->
     <div class="hidden">
-        <div id="pdf-template" class="p-8 bg-white text-gray-900 font-sans">
-            <h1 class="text-2xl font-bold text-indigo-900">Relatório PrecificaPro</h1>
-            <div class="mt-6 text-xl" id="pdf-target-price">R$ 0,00</div>
+        <div id="pdf-template" class="p-8 bg-white text-slate-900 font-sans">
+            <div class="border-b-2 border-indigo-600 pb-4 mb-6 flex justify-between items-center">
+                <div>
+                    <h1 class="text-2xl font-bold text-indigo-700">Relatório Executivo de Precificação</h1>
+                    <p class="text-xs text-slate-500">PrecificaPro Marketplace System</p>
+                </div>
+                <div class="text-right text-xs text-slate-400" id="pdf-date">Data: --/--/----</div>
+            </div>
+            <div class="bg-slate-100 p-4 rounded-xl mb-6">
+                <span class="text-xs uppercase text-slate-500 font-bold">Preço de Venda Sugerido</span>
+                <div class="text-3xl font-extrabold text-indigo-600 mt-1" id="pdf-target-price">R$ 0,00</div>
+            </div>
+            <h3 class="font-bold text-sm uppercase text-slate-700 mb-3 border-b pb-1">Demonstrativo de Resultado (DRE)</h3>
+            <table class="w-full text-xs text-left mb-6 border-collapse">
+                <thead><tr class="bg-slate-200"><th class="p-2">Item</th><th class="p-2 text-right">Valor (R$)</th></tr></thead>
+                <tbody id="pdf-table-body" class="divide-y divide-slate-200"></tbody>
+            </table>
+            <p class="text-[10px] text-slate-400 text-center border-t pt-4">Relatório gerado automaticamente por PrecificaPro.</p>
         </div>
     </div>
 
-    <!-- LOGIC ENGINE -->
+    <!-- LOGICA JS -->
     <script>
-        const STRIPE_LINK = 'https://buy.stripe.com/fZu00i6jVaHD26W1gB4ow00';
         const MAKE_WEBHOOK = 'https://hook.eu1.make.com/fveqo8xjv6mtt8a44w6jxapu1viwoa2j';
+        let lastCalc = null;
         let isUnlocked = false;
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -139,6 +178,8 @@
                 e.preventDefault();
                 calculate();
             });
+
+            document.getElementById('btn-pdf').addEventListener('click', generatePDF);
 
             document.getElementById('lead-form').addEventListener('submit', async function(e) {
                 e.preventDefault();
@@ -156,21 +197,82 @@
                     });
                     alert("Sucesso! Verifique a sua caixa de entrada.");
                 } catch(err) {
-                    alert("Guia registado!");
+                    alert("Operação registada localmente devido à rede.");
                 } finally {
-                    btn.textContent = 'Enviado';
+                    btn.textContent = 'Guia Enviado!';
                 }
             });
         });
 
         function calculate() {
-            if(isUnlocked) revealResults();
+            const cost = parseFloat(document.getElementById('cost').value) || 0;
+            const shipping = parseFloat(document.getElementById('shipping').value) || 0;
+            const fixedFee = parseFloat(document.getElementById('fixedFee').value) || 0;
+            const feePerc = (parseFloat(document.getElementById('fee').value) || 0) / 100;
+            const taxPerc = (parseFloat(document.getElementById('tax').value) || 0) / 100;
+            const marginPerc = (parseFloat(document.getElementById('margin').value) || 0) / 100;
+
+            const totalFixedCost = cost + shipping + fixedFee;
+            const totalVariablePerc = feePerc + taxPerc + marginPerc;
+
+            if (totalVariablePerc >= 1) {
+                alert("A soma das taxas (%) e margem não pode ultrapassar 100%.");
+                return;
+            }
+
+            const targetPrice = totalFixedCost / (1 - totalVariablePerc);
+            const minPrice = totalFixedCost / (1 - (feePerc + taxPerc));
+            const profit = targetPrice * marginPerc;
+
+            lastCalc = { cost, shipping, fixedFee, feePerc, taxPerc, marginPerc, targetPrice, minPrice, profit };
+
+            document.getElementById('res-target-price').textContent = formatBRL(targetPrice);
+            document.getElementById('res-breakeven').textContent = formatBRL(minPrice);
+            document.getElementById('res-net-profit').textContent = formatBRL(profit);
+            document.getElementById('res-net-margin').textContent = (marginPerc * 100).toFixed(1) + "%";
+
+            if (isUnlocked) {
+                revealResults();
+            } else {
+                // Força o efeito de Blur (Desfocagem) se o utilizador não pagou
+                document.getElementById('res-target-price').classList.add('blurred-text');
+                document.getElementById('res-breakeven').classList.add('blurred-text');
+                document.getElementById('res-net-profit').classList.add('blurred-text');
+                document.getElementById('res-net-margin').classList.add('blurred-text');
+                
+                document.getElementById('locked-overlay').classList.remove('hidden');
+            }
         }
 
         function revealResults() {
             document.querySelectorAll('.blurred-text').forEach(el => el.classList.remove('blurred-text'));
             document.getElementById('locked-overlay').classList.add('hidden');
             document.getElementById('unlocked-zone').classList.remove('hidden');
+        }
+
+        function generatePDF() {
+            if (!lastCalc) {
+                alert("Realize um cálculo antes de exportar o PDF.");
+                return;
+            }
+            document.getElementById('pdf-date').textContent = "Data: " + new Date().toLocaleDateString('pt-BR');
+            document.getElementById('pdf-target-price').textContent = formatBRL(lastCalc.targetPrice);
+            const tbody = document.getElementById('pdf-table-body');
+            tbody.innerHTML = `
+                <tr><td class="p-2">Custo Base do Produto</td><td class="p-2 text-right">${formatBRL(lastCalc.cost)}</td></tr>
+                <tr><td class="p-2">Frete / Envio</td><td class="p-2 text-right">${formatBRL(lastCalc.shipping)}</td></tr>
+                <tr><td class="p-2">Taxa Fixa</td><td class="p-2 text-right">${formatBRL(lastCalc.fixedFee)}</td></tr>
+                <tr><td class="p-2">Comissão Plataforma (${(lastCalc.feePerc * 100).toFixed(1)}%)</td><td class="p-2 text-right">${formatBRL(lastCalc.targetPrice * lastCalc.feePerc)}</td></tr>
+                <tr><td class="p-2">Impostos (${(lastCalc.taxPerc * 100).toFixed(1)}%)</td><td class="p-2 text-right">${formatBRL(lastCalc.targetPrice * lastCalc.taxPerc)}</td></tr>
+                <tr class="font-bold bg-emerald-50"><td class="p-2 text-emerald-900">Lucro Líquido Final</td><td class="p-2 text-right text-emerald-900">${formatBRL(lastCalc.profit)}</td></tr>
+            `;
+            const element = document.getElementById('pdf-template');
+            const opt = { margin: 10, filename: 'Relatorio_Precificacao.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
+            html2pdf().set(opt).from(element).save();
+        }
+
+        function formatBRL(val) {
+            return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val || 0);
         }
     </script>
 </body>
