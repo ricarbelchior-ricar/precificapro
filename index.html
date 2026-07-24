@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PrecificaPro - Calculadora de Preço Mínimo Shopee</title>
+    <title>PrecoMaster - Calculadora de Preço Mínimo Shopee</title>
     <meta name="description" content="Calculadora algorítmica de preço mínimo e margem dinâmica floor (18%) para Shopee Brasil.">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><defs><linearGradient id='g' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' style='stop-color:%237c3aed'/><stop offset='100%' style='stop-color:%23ee4d2d'/></linearGradient></defs><rect width='512' height='512' rx='128' fill='url(%23g)'/><path d='M160 352 L352 160' stroke='%23fff' stroke-width='48' stroke-linecap='round'/><circle cx='200' cy='200' r='36' fill='%23fff'/><circle cx='312' cy='312' r='36' fill='%23fff'/></svg>">
     
@@ -47,10 +47,10 @@
             <span>🔥 Algoritmo Oficial Shopee Brasil 2026</span>
         </div>
         <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
-            Precifica<span class="text-brand-600">Pro</span>
+            Preco<span class="text-brand-600">Master</span>
         </h1>
         <p class="text-slate-500 text-xs sm:text-sm mt-1 max-w-xl mx-auto">
-            Cálculo Dinâmico de Preço Mínimo com garantia de Piso de Margem Líquida (18%) e neutralização de taxas ocultas.
+            Análise Financeira, Margens Reais e Gerador de Relatórios para Marketplaces
         </p>
     </header>
 
@@ -135,7 +135,7 @@
                     Insira o custo do produto e clique em executar para recalcular as taxas da Shopee.
                 </div>
 
-                <!-- OVERLAY BLOQUEADO (PAYWALL R$ 10,00) -->
+                <!-- OVERLAY BLOQUEADO (PAYWALL STRIPE R$ 10,00) -->
                 <div id="locked-overlay" class="bg-brand-50/90 backdrop-blur-sm border border-brand-100 p-5 rounded-xl text-center">
                     <div class="text-xl mb-1">🔒</div>
                     <h3 class="text-sm font-bold text-brand-900 mb-1">Desbloquear DRE Completa & Relatório PDF</h3>
@@ -162,7 +162,7 @@
 
     <!-- FOOTER LEGAL -->
     <footer class="max-w-5xl mx-auto w-full text-center text-xs text-slate-400 py-6 border-t border-slate-200 mt-8">
-        PrecificaPro © 2026 • Análise Financeira e Precificação de E-commerce
+        PrecoMaster © 2026 • Análise Financeira e Precificação de E-commerce
     </footer>
 
     <!-- TEMPLATE OCULTO PARA IMPRESSÃO DO PDF -->
@@ -171,7 +171,7 @@
             <div class="border-b-2 border-shopee pb-4 mb-6 flex justify-between items-center">
                 <div>
                     <h1 class="text-2xl font-bold text-slate-900">Relatório Executivo de Precificação</h1>
-                    <p class="text-xs text-slate-500">Shopee Brasil Ecosystem • PrecificaPro SaaS</p>
+                    <p class="text-xs text-slate-500">Shopee Brasil Ecosystem • PrecoMaster SaaS</p>
                 </div>
                 <div class="text-right text-xs text-slate-400" id="pdf-date">Data: --/--/----</div>
             </div>
@@ -206,7 +206,7 @@
             </div>
 
             <p class="text-[10px] text-slate-400 text-center border-t pt-4">
-                Documento gerado automaticamente pelo PrecificaPro SaaS. Simulação financeira baseada na estrutura oficial da Shopee Brasil.
+                Documento gerado automaticamente pelo PrecoMaster SaaS. Simulação financeira baseada na estrutura oficial da Shopee Brasil.
             </p>
         </div>
     </div>
@@ -228,20 +228,20 @@
 
         // VERIFICA SE O PAGAMENTO FOI EFETUADO
         const params = new URLSearchParams(window.location.search);
-        if (params.get('unlocked') === 'true' || localStorage.getItem('precificapro_unlocked') === 'true') {
-            localStorage.setItem('precificapro_unlocked', 'true');
+        if (params.get('unlocked') === 'true' || localStorage.getItem('precomaster_unlocked') === 'true') {
+            localStorage.setItem('precomaster_unlocked', 'true');
             isUnlocked = true;
             revealResults();
         }
 
         document.getElementById('calc-form').addEventListener('submit', function(e) {
             e.preventDefault();
-            calculatePrecificaPro();
+            calculatePrecoMaster();
         });
 
         document.getElementById('btn-pdf').addEventListener('click', generatePDF);
 
-        function calculatePrecificaPro() {
+        function calculatePrecoMaster() {
             const cogs = parseFloat(document.getElementById('cogs').value) || 0;
             const taxPct = (parseFloat(document.getElementById('tax').value) || 0) / 100;
             const adSpendPct = (parseFloat(document.getElementById('adSpend').value) || 0) / 100;
@@ -361,7 +361,7 @@
             const element = document.getElementById('pdf-template');
             const opt = {
                 margin: 10,
-                filename: `Relatorio_PrecificaPro_${Date.now()}.pdf`,
+                filename: `Relatorio_PrecoMaster_${Date.now()}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: { scale: 2 },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
