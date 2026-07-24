@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PrecificaPro | Calculadora de Margens para E-commerce</title>
+    <title>PrecoMaster | Calculadora de Margens para E-commerce</title>
     <meta name="description" content="Calcule a margem exata e preço mínimo de venda para Shopee, Mercado Livre e Amazon.">
     
     <script src="https://cdn.tailwindcss.com"></script>
@@ -20,14 +20,12 @@
 <body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col justify-between p-4 sm:p-6">
     
     <header class="max-w-4xl mx-auto w-full text-center my-6">
-        <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Precifica<span class="text-indigo-600">Pro</span></h1>
+        <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Preco<span class="text-indigo-600">Master</span></h1>
         <p class="text-slate-500 text-sm mt-1">Análise Financeira, Margens Reais e Gerador de Relatórios para Marketplaces</p>
     </header>
 
-    <!-- pb-28 garante que no mobile o form não fica escondido atrás da barra fixa -->
     <main class="max-w-4xl mx-auto w-full grid grid-cols-1 md:grid-cols-12 gap-6 flex-grow pb-28 sm:pb-0">
         
-        <!-- COLUNA 1: FORMULÁRIO DE CÁLCULO -->
         <div class="md:col-span-6 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
             <h2 class="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
                 <span class="bg-indigo-100 text-indigo-700 w-6 h-6 rounded-full flex items-center justify-center text-sm">1</span>
@@ -69,7 +67,6 @@
             </form>
         </div>
 
-        <!-- COLUNA 2: RESULTADOS (COM PAYWALL R$ 10,00) -->
         <div class="md:col-span-6 space-y-6">
             
             <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 relative overflow-hidden">
@@ -97,7 +94,6 @@
                     </div>
                 </div>
 
-                <!-- OVERLAY BLOQUEADO (DENTRO DO CARD) -->
                 <div id="locked-overlay" class="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/95 p-4 text-center">
                     <div class="text-3xl mb-2">🔒</div>
                     <h3 class="text-sm sm:text-base font-bold text-slate-900 mb-3">Sua Margem Real Bloqueada</h3>
@@ -117,7 +113,6 @@
                     </p>
                 </div>
 
-                <!-- ZONA DESBLOQUEADA -->
                 <div id="unlocked-zone" class="hidden mt-4">
                     <div class="p-4 bg-emerald-50 border border-emerald-200 rounded-xl mb-4 text-emerald-900 text-xs flex items-center gap-2">
                         <span class="text-lg">🎉</span>
@@ -129,7 +124,6 @@
                 </div>
             </div>
             
-            <!-- LEAD MAGNET DO MAKE -->
             <div class="bg-gradient-to-br from-slate-900 to-indigo-950 text-white p-6 rounded-2xl shadow-xl relative overflow-hidden mt-6">
                 <span class="bg-indigo-500/30 text-indigo-200 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider inline-block mb-3">🎁 Guia Gratuito em PDF</span>
                 <h3 class="text-lg font-extrabold mb-1">Como Reduzir Taxas na Shopee</h3>
@@ -144,7 +138,6 @@
         </div>
     </main>
 
-    <!-- PAYWALL STICKY BOTTOM - MOBILE FIRST (Visível apenas em ecrãs pequenos) -->
     <div id="sticky-paywall" class="fixed bottom-0 left-0 right-0 z-50 px-4 pb-4 pt-2 bg-gradient-to-t from-slate-50 to-transparent border-t border-slate-200 shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.08)] sm:hidden">
         <div class="max-w-4xl mx-auto bg-white border border-indigo-200 rounded-2xl p-4 shadow-xl relative overflow-hidden">
             <span class="absolute top-2 right-2 bg-emerald-100 text-emerald-800 text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider whitespace-nowrap">Único • Sem Mensalidade</span>
@@ -162,13 +155,12 @@
         </div>
     </div>
 
-    <!-- TEMPLATE PDF -->
     <div class="hidden">
         <div id="pdf-template" class="p-8 bg-white text-slate-900 font-sans">
             <div class="border-b-2 border-indigo-600 pb-4 mb-6 flex justify-between items-center">
                 <div>
                     <h1 class="text-2xl font-bold text-indigo-700">Relatório Executivo de Precificação</h1>
-                    <p class="text-xs text-slate-500">PrecificaPro Marketplace System</p>
+                    <p class="text-xs text-slate-500">PrecoMaster Marketplace System</p>
                 </div>
                 <div class="text-right text-xs text-slate-400" id="pdf-date">Data: --/--/----</div>
             </div>
@@ -181,11 +173,10 @@
                 <thead><tr class="bg-slate-200"><th class="p-2">Item</th><th class="p-2 text-right">Valor (R$)</th></tr></thead>
                 <tbody id="pdf-table-body" class="divide-y divide-slate-200"></tbody>
             </table>
-            <p class="text-[10px] text-slate-400 text-center border-t pt-4">Relatório gerado automaticamente por PrecificaPro.</p>
+            <p class="text-[10px] text-slate-400 text-center border-t pt-4">Relatório gerado automaticamente por PrecoMaster.</p>
         </div>
     </div>
 
-    <!-- LOGICA JS -->
     <script>
         const MAKE_WEBHOOK = 'https://hook.eu1.make.com/fveqo8xjv6mtt8a44w6jxapu1viwoa2j';
         let lastCalc = null;
@@ -193,17 +184,15 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             const params = new URLSearchParams(window.location.search);
-            if (params.get('unlocked') === 'true' || localStorage.getItem('precificapro_unlocked') === 'true') {
-                localStorage.setItem('precificapro_unlocked', 'true');
+            if (params.get('unlocked') === 'true' || localStorage.getItem('precomaster_unlocked') === 'true') {
+                localStorage.setItem('precomaster_unlocked', 'true');
                 isUnlocked = true;
                 revealResults();
             } else {
-                // Estado bloqueado inicial: Mostra tudo vazio e desfocado ANTES de calcular
                 document.getElementById('locked-overlay').classList.remove('hidden');
                 document.getElementById('sticky-paywall').classList.remove('hidden');
             }
 
-            // Iniciar Countdown Timer (Urgência)
             if(!isUnlocked) {
                 let t = 300; 
                 const el = document.getElementById('timer');
@@ -221,7 +210,6 @@
 
             document.getElementById('btn-pdf').addEventListener('click', generatePDF);
 
-            // Adiciona feedback "Redirecionando" aos botões do Stripe
             document.querySelectorAll('.btn-stripe-checkout').forEach(btn => {
                 btn.addEventListener('click', function() {
                     this.innerHTML = '<svg class="animate-spin h-5 w-5 mr-2" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Redirecionando...';
@@ -315,7 +303,7 @@
                 <tr class="font-bold bg-emerald-50"><td class="p-2 text-emerald-900">Lucro Líquido Final</td><td class="p-2 text-right text-emerald-900">${formatBRL(lastCalc.profit)}</td></tr>
             `;
             const element = document.getElementById('pdf-template');
-            const opt = { margin: 10, filename: 'Relatorio_Precificacao.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
+            const opt = { margin: 10, filename: 'Relatorio_PrecoMaster.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
             html2pdf().set(opt).from(element).save();
         }
 
