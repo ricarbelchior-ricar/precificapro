@@ -3,307 +3,374 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PrecoMaster | Calculadora de Margens para E-commerce</title>
-    <meta name="description" content="Calcule a margem exata e preço mínimo de venda para Shopee, Mercado Livre e Amazon.">
+    <title>PrecificaPro - Matriz de Precificação Algorítmica Shopee V4.2</title>
+    <meta name="description" content="Calculadora algorítmica de preço mínimo e margem dinâmica floor (18%) para Shopee Brasil.">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><defs><linearGradient id='g' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' style='stop-color:%237c3aed'/><stop offset='100%' style='stop-color:%23ee4d2d'/></linearGradient></defs><rect width='512' height='512' rx='128' fill='url(%23g)'/><path d='M160 352 L352 160' stroke='%23fff' stroke-width='48' stroke-linecap='round'/><circle cx='200' cy='200' r='36' fill='%23fff'/><circle cx='312' cy='312' r='36' fill='%23fff'/></svg>">
     
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f5f3ff',
+                            100: '#ede9fe',
+                            500: '#8b5cf6',
+                            600: '#7c3aed',
+                            700: '#6d28d9',
+                            900: '#4c1d95',
+                        },
+                        shopee: '#ee4d2d'
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- html2pdf.js (Geração de PDF Client-Side) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
     <style>
         .blurred-text {
             filter: blur(6px);
             user-select: none;
-            pointer-events: none;
         }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col justify-between p-4 sm:p-6">
-    
-    <header class="max-w-4xl mx-auto w-full text-center my-6">
-        <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Preco<span class="text-indigo-600">Master</span></h1>
-        <p class="text-slate-500 text-sm mt-1">Análise Financeira, Margens Reais e Gerador de Relatórios para Marketplaces</p>
+
+    <!-- HEADER -->
+    <header class="max-w-5xl mx-auto w-full text-center my-6">
+        <div class="inline-flex items-center gap-2 bg-orange-50 border border-orange-200 px-3 py-1 rounded-full text-xs font-bold text-shopee mb-2">
+            <span>🔥 Algoritmo Shopee Brasil / PrecoMaster V4.2</span>
+        </div>
+        <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+            Precifica<span class="text-brand-600">Pro</span>
+        </h1>
+        <p class="text-slate-500 text-xs sm:text-sm mt-1 max-w-xl mx-auto">
+            Cálculo Dinâmico de Preço Mínimo com garantia de Piso de Margem Líquida (18%) e neutralização de taxas ocultas.
+        </p>
     </header>
 
-    <main class="max-w-4xl mx-auto w-full grid grid-cols-1 md:grid-cols-12 gap-6 flex-grow pb-28 sm:pb-0">
+    <!-- CONTAINER PRINCIPAL -->
+    <main class="max-w-5xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-6 flex-grow">
         
-        <div class="md:col-span-6 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-            <h2 class="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
-                <span class="bg-indigo-100 text-indigo-700 w-6 h-6 rounded-full flex items-center justify-center text-sm">1</span>
-                Inserir Dados do Produto
+        <!-- COLUNA 1: INPUTS DO MODELO ALGORÍTMICO -->
+        <div class="lg:col-span-6 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+            <h2 class="text-lg font-bold text-slate-900 mb-4 flex items-center justify-between">
+                <span>1. Parâmetros de Custos & Meta</span>
+                <span class="text-xs font-normal text-slate-400">Moeda: R$</span>
             </h2>
             
             <form id="calc-form" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Custo do Produto (R$)</label>
-                    <input type="number" id="cost" step="0.01" min="0" placeholder="Ex: 25,00" required inputmode="decimal" enterkeyhint="next" autocomplete="off" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                        Custo do Produto (COGS - R$) *
+                    </label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 text-sm font-semibold">R$</span>
+                        <input type="number" id="cogs" step="0.01" min="0" placeholder="25.00" required class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:bg-white text-slate-900 font-semibold text-sm transition">
+                    </div>
+                    <span class="text-[10px] text-slate-400">Inclui fornecedor, embalagem e frete de entrada.</span>
                 </div>
+
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Frete / Envio (R$)</label>
-                        <input type="number" id="shipping" step="0.01" min="0" placeholder="Ex: 5,00" inputmode="decimal" enterkeyhint="next" autocomplete="off" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                            Impostos / Simples (%)
+                        </label>
+                        <div class="relative">
+                            <input type="number" id="tax" step="0.1" min="0" max="99" value="6.0" class="w-full pl-3 pr-8 py-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 text-slate-900 font-semibold text-sm">
+                            <span class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 text-sm font-semibold">%</span>
+                        </div>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Taxa Fixa / Venda (R$)</label>
-                        <input type="number" id="fixedFee" step="0.01" min="0" placeholder="Ex: 3,00" inputmode="decimal" enterkeyhint="next" autocomplete="off" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                            Ads Attributed (%)
+                        </label>
+                        <div class="relative">
+                            <input type="number" id="adSpend" step="0.1" min="0" max="99" value="8.0" class="w-full pl-3 pr-8 py-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 text-slate-900 font-semibold text-sm">
+                            <span class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 text-sm font-semibold">%</span>
+                        </div>
                     </div>
                 </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Comissão / Plataforma (%)</label>
-                        <input type="number" id="fee" step="0.1" min="0" max="99" placeholder="Ex: 14" required inputmode="numeric" enterkeyhint="next" autocomplete="off" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Impostos / Simples (%)</label>
-                        <input type="number" id="tax" step="0.1" min="0" max="99" placeholder="Ex: 6" inputmode="numeric" enterkeyhint="next" autocomplete="off" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
-                    </div>
-                </div>
+
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Margem de Lucro Desejada (%)</label>
-                    <input type="number" id="margin" step="0.1" min="0" max="99" placeholder="Ex: 20" required inputmode="numeric" enterkeyhint="done" autocomplete="off" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                        Piso de Margem Líquida Target (%)
+                    </label>
+                    <div class="relative">
+                        <input type="number" id="marginFloor" step="0.1" min="1" max="99" value="18.0" class="w-full pl-3 pr-8 py-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 text-slate-900 font-semibold text-sm">
+                        <span class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 text-sm font-semibold">%</span>
+                    </div>
+                    <span class="text-[10px] text-slate-400">Mínimo recomendado pela matriz: 18.0%</span>
                 </div>
-                <button type="submit" class="w-full bg-indigo-600 text-white font-bold py-3 rounded-xl hover:bg-indigo-700 transition shadow-md mt-2">
-                    Calcular Preço Ideal
+
+                <button type="submit" class="w-full bg-shopee hover:bg-orange-600 text-white font-bold py-3.5 rounded-xl shadow-lg transition duration-200 flex items-center justify-center gap-2 text-sm mt-2">
+                    ⚡ Executar Matriz Algorítmica
                 </button>
             </form>
         </div>
 
-        <div class="md:col-span-6 space-y-6">
+        <!-- COLUNA 2: RESULTADO E BREAKDOWN FINANCEIRO -->
+        <div class="lg:col-span-6 space-y-6">
             
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 relative overflow-hidden">
-                <div class="flex justify-between items-center mb-5">
-                    <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
-                        <span class="bg-emerald-100 text-emerald-700 w-6 h-6 rounded-full flex items-center justify-center text-sm">2</span>
-                        Resumo da Precificação
-                    </h2>
-                </div>
+            <div id="result-box" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 relative overflow-hidden">
+                <h2 class="text-lg font-bold text-slate-900 mb-3 flex items-center justify-between">
+                    <span>2. Diagnóstico de Precificação</span>
+                    <span id="badge-bracket" class="text-[10px] font-bold bg-slate-100 text-slate-600 px-2 py-1 rounded">Aguardando</span>
+                </h2>
                 
-                <div class="bg-slate-900 text-white p-5 rounded-2xl text-center mb-4 relative overflow-hidden">
-                    <span class="text-[10px] text-slate-400 uppercase tracking-widest font-bold mb-1 block">Sua Margem Real</span>
-                    <div id="res-target-price" class="text-3xl font-black text-emerald-400 mb-1 blurred-text">R$ --,--</div>
-                    <span class="text-xs text-slate-400 block mt-1">Preço Mínimo (Break-even): <strong id="res-breakeven" class="text-white blurred-text">R$ --,--</strong></span>
-                </div>
-                
-                <div class="grid grid-cols-2 gap-4 mb-4">
-                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-center">
-                        <span class="text-[10px] text-slate-500 uppercase font-bold mb-1 block">Lucro Líquido</span>
-                        <span id="res-net-profit" class="text-xl font-extrabold text-slate-800 blurred-text">R$ --,--</span>
-                    </div>
-                    <div class="bg-emerald-50 p-4 rounded-2xl border border-emerald-100 text-center">
-                        <span class="text-[10px] text-emerald-600 uppercase font-bold mb-1 block">Margem</span>
-                        <span id="res-net-margin" class="text-xl font-extrabold text-emerald-700 blurred-text">--.-%</span>
-                    </div>
+                <!-- CARD PREÇO RECOMENDADO -->
+                <div class="bg-slate-900 text-white p-5 rounded-xl text-center mb-4 relative">
+                    <span class="text-xs text-slate-400 uppercase font-medium">Preço Mínimo Calculado (P_min)</span>
+                    <div id="res-target-price" class="text-3xl sm:text-4xl font-extrabold text-emerald-400 mt-1 blurred-text">R$ 0,00</div>
+                    <span class="text-[11px] text-slate-400 block mt-1">Lucro Líquido / Venda: <strong id="res-net-profit" class="text-white blurred-text">R$ 0,00</strong></span>
                 </div>
 
-                <div id="locked-overlay" class="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/95 p-4 text-center">
-                    <div class="text-3xl mb-2">🔒</div>
-                    <h3 class="text-sm sm:text-base font-bold text-slate-900 mb-3">Sua Margem Real Bloqueada</h3>
+                <!-- ALERTA DE ZONA MORTA / STATUS -->
+                <div id="status-alert" class="p-3.5 rounded-xl border text-xs font-semibold mb-4 bg-slate-50 border-slate-200 text-slate-600">
+                    Insira o custo do produto e clique em executar para recalcular as taxas da Shopee.
+                </div>
+
+                <!-- OVERLAY BLOQUEADO (PAYWALL STRIPE) -->
+                <div id="locked-overlay" class="bg-brand-50/90 backdrop-blur-sm border border-brand-100 p-5 rounded-xl text-center">
+                    <div class="text-xl mb-1">🔒</div>
+                    <h3 class="text-sm font-bold text-brand-900 mb-1">Desbloquear DRE Completa & Relatório PDF</h3>
+                    <p class="text-slate-600 text-xs mb-4">Aceda ao detalhamento exato em R$ de comissões, taxa fixa, taxa logística reversa e baixe o relatório executivo.</p>
                     
-                    <ul class="text-xs text-slate-700 mb-5 text-left max-w-xs mx-auto space-y-2 font-medium">
-                        <li class="flex items-center gap-2"><span>✅</span> DRE em PDF aceito por contadores</li>
-                        <li class="flex items-center gap-2"><span>✅</span> Impostos calculados na fonte</li>
-                        <li class="flex items-center gap-2"><span>✅</span> Acesso vitalício a este cálculo</li>
-                    </ul>
-                    
-                    <a href="https://buy.stripe.com/dRmdR86jV6rn5j85wR4ow01" class="btn-stripe-checkout inline-flex w-full justify-center bg-amber-500 hover:bg-amber-600 text-slate-900 font-extrabold py-3.5 px-4 rounded-xl shadow-lg transition-transform transform hover:-translate-y-0.5 text-xs sm:text-sm">
-                        Liberar Margem + PDF por R$ 10
+                    <a href="https://buy.stripe.com/fZu00i6jVaHD26W1gB4ow00" class="inline-block w-full py-3 bg-brand-600 text-white font-bold text-sm rounded-xl hover:bg-brand-700 transition shadow-md">
+                        Desbloquear Relatório em PDF (€9,99)
                     </a>
-
-                    <p class="text-[10px] text-emerald-700 font-bold mt-3 flex items-center justify-center gap-1">
-                        <span>🛡️</span> 100% Seguro • Devolvemos na hora se não gostar.
-                    </p>
                 </div>
 
-                <div id="unlocked-zone" class="hidden mt-4">
-                    <div class="p-4 bg-emerald-50 border border-emerald-200 rounded-xl mb-4 text-emerald-900 text-xs flex items-center gap-2">
-                        <span class="text-lg">🎉</span>
-                        <span><strong>Acesso Liberado!</strong> Valores exatos revelados.</span>
+                <!-- ZONA DESBLOQUEADA (PÓS-PAGAMENTO) -->
+                <div id="unlocked-zone" class="hidden space-y-4">
+                    <div class="bg-emerald-50 border border-emerald-200 p-4 rounded-xl text-xs text-emerald-900">
+                        <strong>✅ Acesso Premium Ativo:</strong> Valores desbloqueados e matriz atualizada.
                     </div>
-                    <button id="btn-pdf" class="w-full py-3.5 bg-emerald-600 text-white font-bold text-sm rounded-xl hover:bg-emerald-700 transition shadow-md flex items-center justify-center gap-2">
-                        📄 Baixar Relatório em PDF
+                    
+                    <button id="btn-pdf" class="w-full py-3 bg-emerald-600 text-white font-bold text-sm rounded-xl hover:bg-emerald-700 transition shadow-md flex items-center justify-center gap-2">
+                        📄 Descarregar Relatório Executivo DRE (PDF)
                     </button>
                 </div>
-            </div>
-            
-            <div class="bg-gradient-to-br from-slate-900 to-indigo-950 text-white p-6 rounded-2xl shadow-xl relative overflow-hidden mt-6">
-                <span class="bg-indigo-500/30 text-indigo-200 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider inline-block mb-3">🎁 Guia Gratuito em PDF</span>
-                <h3 class="text-lg font-extrabold mb-1">Como Reduzir Taxas na Shopee</h3>
-                <p class="text-xs text-slate-300 mt-1 mb-4">Checklist de 5 passos para enquadrar os seus produtos em tarifas reduzidas.</p>
-                <form id="lead-form" class="flex flex-col sm:flex-row gap-3">
-                    <input type="email" id="lead-email" required placeholder="Digite o seu melhor e-mail..." class="flex-grow px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400">
-                    <button type="submit" id="btn-lead" class="bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-extrabold px-6 py-3 rounded-xl text-sm transition-transform transform hover:-translate-y-0.5 whitespace-nowrap shadow-lg">
-                        Baixar Guia Grátis
-                    </button>
-                </form>
             </div>
         </div>
     </main>
 
-    <div id="sticky-paywall" class="fixed bottom-0 left-0 right-0 z-50 px-4 pb-4 pt-2 bg-gradient-to-t from-slate-50 to-transparent border-t border-slate-200 shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.08)] sm:hidden">
-        <div class="max-w-4xl mx-auto bg-white border border-indigo-200 rounded-2xl p-4 shadow-xl relative overflow-hidden">
-            <span class="absolute top-2 right-2 bg-emerald-100 text-emerald-800 text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider whitespace-nowrap">Único • Sem Mensalidade</span>
-            
-            <p class="text-xs text-center text-amber-700 font-bold flex items-center justify-center gap-1 mb-2" id="urgency-timer">
-                ⏳ Oferta R$ 10 expira em <span id="timer">04:59</span>
-            </p>
+    <!-- FOOTER LEGAL -->
+    <footer class="max-w-5xl mx-auto w-full text-center text-xs text-slate-400 py-6 border-t border-slate-200 mt-8">
+        PrecificaPro © 2026 • Ferramenta Integrada ao Algoritmo PrecoMaster V4.2
+    </footer>
 
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center flex-shrink-0 text-indigo-600 text-xl">🔒</div>
-                <a href="https://buy.stripe.com/dRmdR86jV6rn5j85wR4ow01" class="btn-stripe-checkout w-full bg-amber-500 hover:bg-amber-600 text-slate-900 font-extrabold py-3 px-4 rounded-xl shadow-lg transition-transform active:scale-[0.98] text-sm flex items-center justify-center gap-1.5 whitespace-nowrap">
-                    Liberar por R$ 10
-                </a>
-            </div>
-        </div>
-    </div>
-
+    <!-- TEMPLATE OCULTO PARA IMPRESSÃO DO PDF -->
     <div class="hidden">
-        <div id="pdf-template" class="p-8 bg-white text-slate-900 font-sans">
-            <div class="border-b-2 border-indigo-600 pb-4 mb-6 flex justify-between items-center">
+        <div id="pdf-template" class="p-8 bg-white text-slate-900 font-sans" style="width: 750px;">
+            <div class="border-b-2 border-shopee pb-4 mb-6 flex justify-between items-center">
                 <div>
-                    <h1 class="text-2xl font-bold text-indigo-700">Relatório Executivo de Precificação</h1>
-                    <p class="text-xs text-slate-500">PrecoMaster Marketplace System</p>
+                    <h1 class="text-2xl font-bold text-slate-900">Relatório Executivo de Precificação</h1>
+                    <p class="text-xs text-slate-500">Shopee Brasil Ecosystem • Algoritmo PrecoMaster V4.2</p>
                 </div>
                 <div class="text-right text-xs text-slate-400" id="pdf-date">Data: --/--/----</div>
             </div>
-            <div class="bg-slate-100 p-4 rounded-xl mb-6">
-                <span class="text-xs uppercase text-slate-500 font-bold">Preço de Venda Sugerido</span>
-                <div class="text-3xl font-extrabold text-indigo-600 mt-1" id="pdf-target-price">R$ 0,00</div>
+
+            <div class="bg-slate-100 p-4 rounded-xl mb-6 flex justify-between items-center">
+                <div>
+                    <span class="text-xs uppercase text-slate-500 font-bold block">Preço de Venda Mínimo (P_min)</span>
+                    <div class="text-3xl font-extrabold text-shopee mt-1" id="pdf-target-price">R$ 0,00</div>
+                </div>
+                <div class="text-right">
+                    <span class="text-xs uppercase text-slate-500 font-bold block">Faixa de Taxa Aplicada</span>
+                    <span class="text-sm font-bold text-slate-800" id="pdf-bracket-name">--</span>
+                </div>
             </div>
-            <h3 class="font-bold text-sm uppercase text-slate-700 mb-3 border-b pb-1">Demonstrativo de Resultado (DRE)</h3>
+
+            <h3 class="font-bold text-sm uppercase text-slate-700 mb-3 border-b pb-1">Demonstrativo de Resultado de Exercício (DRE / Unidade)</h3>
             <table class="w-full text-xs text-left mb-6 border-collapse">
-                <thead><tr class="bg-slate-200"><th class="p-2">Item</th><th class="p-2 text-right">Valor (R$)</th></tr></thead>
-                <tbody id="pdf-table-body" class="divide-y divide-slate-200"></tbody>
+                <thead>
+                    <tr class="bg-slate-200">
+                        <th class="p-2">Componente de Custo / Margem</th>
+                        <th class="p-2 text-right">Valor (R$)</th>
+                        <th class="p-2 text-right">% do Preço Final</th>
+                    </tr>
+                </thead>
+                <tbody id="pdf-table-body" class="divide-y divide-slate-200">
+                    <!-- Preenchido via JS -->
+                </tbody>
             </table>
-            <p class="text-[10px] text-slate-400 text-center border-t pt-4">Relatório gerado automaticamente por PrecoMaster.</p>
+
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs leading-relaxed mb-6" id="pdf-diagnosis">
+                <!-- Diagnóstico detalhado -->
+            </div>
+
+            <p class="text-[10px] text-slate-400 text-center border-t pt-4">
+                Documento gerado automaticamente pelo PrecificaPro SaaS. Simulação financeira baseada na estrutura oficial da Shopee Brasil.
+            </p>
         </div>
     </div>
 
+    <!-- MOTOR DE CÁLCULO ALGORÍTMICO PRECOMASTER V4.2 -->
     <script>
-        const MAKE_WEBHOOK = 'https://hook.eu1.make.com/fveqo8xjv6mtt8a44w6jxapu1viwoa2j';
         let lastCalc = null;
         let isUnlocked = false;
 
-        document.addEventListener('DOMContentLoaded', () => {
-            const params = new URLSearchParams(window.location.search);
-            if (params.get('unlocked') === 'true' || localStorage.getItem('precomaster_unlocked') === 'true') {
-                localStorage.setItem('precomaster_unlocked', 'true');
-                isUnlocked = true;
-                revealResults();
-            } else {
-                document.getElementById('locked-overlay').classList.remove('hidden');
-                document.getElementById('sticky-paywall').classList.remove('hidden');
-            }
+        // ESTRUTURA OFICIAL DE DEGRAUS DA SHOPEE BRASIL (PRECOMASTER V4.2)
+        const SHOPEE_BRACKETS = [
+            { name: "Micro-Ticket (< R$ 8.00)", min: 0, max: 7.99, cBase: 0.20, fRatio: 0.50, fFlat: 0, lRev: 0.50 },
+            { name: "R$ 8.00 – R$ 79.99", min: 8.00, max: 79.99, cBase: 0.20, fRatio: 0, fFlat: 4.00, lRev: 1.50 },
+            { name: "R$ 80.00 – R$ 99.99", min: 80.00, max: 99.99, cBase: 0.14, fRatio: 0, fFlat: 16.00, lRev: 2.50 },
+            { name: "R$ 100.00 – R$ 199.99", min: 100.00, max: 199.99, cBase: 0.14, fRatio: 0, fFlat: 20.00, lRev: 3.50 },
+            { name: "R$ 200.00 – R$ 499.99", min: 200.00, max: 499.99, cBase: 0.14, fRatio: 0, fFlat: 26.00, lRev: 5.00 },
+            { name: "≥ R$ 500.00", min: 500.00, max: Infinity, cBase: 0.14, fRatio: 0, fFlat: 26.00, lRev: 10.00 }
+        ];
 
-            if(!isUnlocked) {
-                let t = 300; 
-                const el = document.getElementById('timer');
-                const int = setInterval(() => { 
-                    t--; 
-                    if(el) el.textContent = `${String(Math.floor(t/60)).padStart(2,'0')}:${String(t%60).padStart(2,'0')}`; 
-                    if(t<=0) clearInterval(int); 
-                }, 1000);
-            }
+        // VERIFICA SE O PAGAMENTO FOI EFETUADO
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('unlocked') === 'true' || localStorage.getItem('precificapro_unlocked') === 'true') {
+            localStorage.setItem('precificapro_unlocked', 'true');
+            isUnlocked = true;
+            revealResults();
+        }
 
-            document.getElementById('calc-form').addEventListener('submit', function(e) {
-                e.preventDefault();
-                calculate();
-            });
-
-            document.getElementById('btn-pdf').addEventListener('click', generatePDF);
-
-            document.querySelectorAll('.btn-stripe-checkout').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    this.innerHTML = '<svg class="animate-spin h-5 w-5 mr-2" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Redirecionando...';
-                    this.style.pointerEvents = 'none';
-                });
-            });
-
-            document.getElementById('lead-form').addEventListener('submit', async function(e) {
-                e.preventDefault();
-                const email = document.getElementById('lead-email').value;
-                if(!email) return;
-
-                const btn = document.getElementById('btn-lead');
-                btn.textContent = 'Enviando...';
-                
-                try {
-                    await fetch(MAKE_WEBHOOK, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ event_type: "lead_gratuito", data: { email: email } })
-                    });
-                    alert("Sucesso! Verifique a sua caixa de entrada.");
-                } catch(err) {
-                    alert("Operação registada localmente devido à rede.");
-                } finally {
-                    btn.textContent = 'Guia Enviado!';
-                }
-            });
+        document.getElementById('calc-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            calculatePrecoMaster();
         });
 
-        function calculate() {
-            const cost = parseFloat(document.getElementById('cost').value.replace(',','.')) || 0;
-            const shipping = parseFloat(document.getElementById('shipping').value.replace(',','.')) || 0;
-            const fixedFee = parseFloat(document.getElementById('fixedFee').value.replace(',','.')) || 0;
-            const feePerc = (parseFloat(document.getElementById('fee').value.replace(',','.')) || 0) / 100;
-            const taxPerc = (parseFloat(document.getElementById('tax').value.replace(',','.')) || 0) / 100;
-            const marginPerc = (parseFloat(document.getElementById('margin').value.replace(',','.')) || 0) / 100;
+        document.getElementById('btn-pdf').addEventListener('click', generatePDF);
 
-            const totalFixedCost = cost + shipping + fixedFee;
-            const totalVariablePerc = feePerc + taxPerc + marginPerc;
+        // ALGORITMO CORE DE RESOLUÇÃO ITERATIVA DE PREÇO
+        function calculatePrecoMaster() {
+            const cogs = parseFloat(document.getElementById('cogs').value) || 0;
+            const taxPct = (parseFloat(document.getElementById('tax').value) || 0) / 100;
+            const adSpendPct = (parseFloat(document.getElementById('adSpend').value) || 0) / 100;
+            const marginFloorPct = (parseFloat(document.getElementById('marginFloor').value) || 0) / 100;
 
-            if (totalVariablePerc >= 1) {
-                alert("A soma das taxas (%) e margem não pode ultrapassar 100%.");
+            if (cogs <= 0) {
+                alert("Por favor, informe o custo do produto (COGS).");
                 return;
             }
 
-            const targetPrice = totalFixedCost / (1 - totalVariablePerc);
-            const minPrice = totalFixedCost / (1 - (feePerc + taxPerc));
-            const profit = targetPrice * marginPerc;
+            let finalPrice = 0;
+            let activeBracket = null;
 
-            lastCalc = { cost, shipping, fixedFee, feePerc, taxPerc, marginPerc, targetPrice, minPrice, profit };
+            // Iteração através das faixas para encontrar o ponto de convergência
+            for (let b of SHOPEE_BRACKETS) {
+                let denominator = 1 - (b.cBase + taxPct + adSpendPct + marginFloorPct + b.fRatio);
+                if (denominator <= 0) continue;
 
-            document.getElementById('res-target-price').textContent = formatBRL(targetPrice);
-            document.getElementById('res-breakeven').textContent = formatBRL(minPrice);
-            document.getElementById('res-net-profit').textContent = formatBRL(profit);
-            document.getElementById('res-net-margin').textContent = (marginPerc * 100).toFixed(1) + "%";
+                let numerator = cogs + b.fFlat + b.lRev;
+                let trialPrice = numerator / denominator;
+
+                if (trialPrice >= b.min && trialPrice <= b.max) {
+                    finalPrice = trialPrice;
+                    activeBracket = b;
+                    break;
+                }
+            }
+
+            // Trata salto de "Zona Morta"
+            if (!activeBracket) {
+                for (let b of SHOPEE_BRACKETS) {
+                    let denominator = 1 - (b.cBase + taxPct + adSpendPct + marginFloorPct + b.fRatio);
+                    if (denominator <= 0) continue;
+
+                    let numerator = cogs + b.fFlat + b.lRev;
+                    let trialPrice = numerator / denominator;
+                    let adjustedPrice = Math.max(trialPrice, b.min);
+
+                    let feeFixed = b.fFlat + (b.fRatio * adjustedPrice);
+                    let totalCosts = cogs + feeFixed + b.lRev + (adjustedPrice * (b.cBase + taxPct + adSpendPct));
+                    let profit = adjustedPrice - totalCosts;
+
+                    if ((profit / adjustedPrice) >= marginFloorPct) {
+                        finalPrice = adjustedPrice;
+                        activeBracket = b;
+                        break;
+                    }
+                }
+            }
+
+            // Decomposição da DRE por Unidade
+            const feeBaseVal = finalPrice * activeBracket.cBase;
+            const feeFixedVal = activeBracket.fFlat + (activeBracket.fRatio * finalPrice);
+            const taxVal = finalPrice * taxPct;
+            const adSpendVal = finalPrice * adSpendPct;
+            const lRevVal = activeBracket.lRev;
+            const netProfitVal = finalPrice - (cogs + feeBaseVal + feeFixedVal + taxVal + adSpendVal + lRevVal);
+            const netMarginReal = (netProfitVal / finalPrice) * 100;
+
+            lastCalc = {
+                cogs, taxPct, adSpendPct, marginFloorPct,
+                finalPrice, activeBracket, feeBaseVal, feeFixedVal,
+                taxVal, adSpendVal, lRevVal, netProfitVal, netMarginReal
+            };
+
+            // Atualização da Interface
+            document.getElementById('res-target-price').textContent = formatBRL(finalPrice);
+            document.getElementById('res-net-profit').textContent = formatBRL(netProfitVal);
+            document.getElementById('badge-bracket').textContent = activeBracket.name;
+
+            updateStatusAlert(finalPrice, activeBracket);
 
             if (isUnlocked) {
                 revealResults();
+            }
+        }
+
+        function updateStatusAlert(price, bracket) {
+            const alertBox = document.getElementById('status-alert');
+            if (price >= 80.00 && price <= 89.99) {
+                alertBox.className = "p-3.5 rounded-xl border text-xs font-semibold mb-4 bg-amber-50 border-amber-200 text-amber-900";
+                alertBox.innerHTML = "⚠️ <strong>Atenção à Zona Morta (R$ 80-89):</strong> O salto da taxa fixa para R$ 16,00 reduz a eficiência. Considere ajustar o preço base para R$ 90,00+ ou manter em R$ 79,99.";
             } else {
-                document.getElementById('res-target-price').classList.add('blurred-text');
-                document.getElementById('res-breakeven').classList.add('blurred-text');
-                document.getElementById('res-net-profit').classList.add('blurred-text');
-                document.getElementById('res-net-margin').classList.add('blurred-text');
-                document.getElementById('locked-overlay').classList.remove('hidden');
-                document.getElementById('sticky-paywall').classList.remove('hidden');
+                alertBox.className = "p-3.5 rounded-xl border text-xs font-semibold mb-4 bg-emerald-50 border-emerald-200 text-emerald-900";
+                alertBox.innerHTML = `✅ <strong>Estrutura Segura:</strong> Enquadrado na faixa de ${bracket.name}. Margem Mínima de ${(lastCalc.netMarginReal).toFixed(1)}% assegurada.`;
             }
         }
 
         function revealResults() {
             document.querySelectorAll('.blurred-text').forEach(el => el.classList.remove('blurred-text'));
             document.getElementById('locked-overlay').classList.add('hidden');
-            document.getElementById('sticky-paywall').classList.add('hidden');
             document.getElementById('unlocked-zone').classList.remove('hidden');
         }
 
         function generatePDF() {
             if (!lastCalc) {
-                alert("Realize um cálculo antes de exportar o PDF.");
+                alert("Por favor, execute o cálculo antes de exportar o PDF.");
                 return;
             }
+
+            const m = lastCalc;
             document.getElementById('pdf-date').textContent = "Data: " + new Date().toLocaleDateString('pt-BR');
-            document.getElementById('pdf-target-price').textContent = formatBRL(lastCalc.targetPrice);
+            document.getElementById('pdf-target-price').textContent = formatBRL(m.finalPrice);
+            document.getElementById('pdf-bracket-name').textContent = m.activeBracket.name;
+
             const tbody = document.getElementById('pdf-table-body');
             tbody.innerHTML = `
-                <tr><td class="p-2">Custo Base do Produto</td><td class="p-2 text-right">${formatBRL(lastCalc.cost)}</td></tr>
-                <tr><td class="p-2">Frete / Envio</td><td class="p-2 text-right">${formatBRL(lastCalc.shipping)}</td></tr>
-                <tr><td class="p-2">Taxa Fixa</td><td class="p-2 text-right">${formatBRL(lastCalc.fixedFee)}</td></tr>
-                <tr><td class="p-2">Comissão Plataforma (${(lastCalc.feePerc * 100).toFixed(1)}%)</td><td class="p-2 text-right">${formatBRL(lastCalc.targetPrice * lastCalc.feePerc)}</td></tr>
-                <tr><td class="p-2">Impostos (${(lastCalc.taxPerc * 100).toFixed(1)}%)</td><td class="p-2 text-right">${formatBRL(lastCalc.targetPrice * lastCalc.taxPerc)}</td></tr>
-                <tr class="font-bold bg-emerald-50"><td class="p-2 text-emerald-900">Lucro Líquido Final</td><td class="p-2 text-right text-emerald-900">${formatBRL(lastCalc.profit)}</td></tr>
+                <tr><td class="p-2 font-medium">Custo Direto do Produto (COGS)</td><td class="p-2 text-right">${formatBRL(m.cogs)}</td><td class="p-2 text-right">${((m.cogs/m.finalPrice)*100).toFixed(1)}%</td></tr>
+                <tr><td class="p-2 font-medium">Comissão Base Shopee (${(m.activeBracket.cBase * 100).toFixed(1)}%)</td><td class="p-2 text-right">${formatBRL(m.feeBaseVal)}</td><td class="p-2 text-right">${(m.activeBracket.cBase * 100).toFixed(1)}%</td></tr>
+                <tr><td class="p-2 font-medium">Taxa Fixa por Item Vendido</td><td class="p-2 text-right">${formatBRL(m.feeFixedVal)}</td><td class="p-2 text-right">${((m.feeFixedVal/m.finalPrice)*100).toFixed(1)}%</td></tr>
+                <tr><td class="p-2 font-medium">Reserva de Logística Reversa (L_rev)</td><td class="p-2 text-right">${formatBRL(m.lRevVal)}</td><td class="p-2 text-right">${((m.lRevVal/m.finalPrice)*100).toFixed(1)}%</td></tr>
+                <tr><td class="p-2 font-medium">Impostos / Simples Nacional (${(m.taxPct * 100).toFixed(1)}%)</td><td class="p-2 text-right">${formatBRL(m.taxVal)}</td><td class="p-2 text-right">${(m.taxPct * 100).toFixed(1)}%</td></tr>
+                <tr><td class="p-2 font-medium">Atribuição de Ads / Tráfego Pago (${(m.adSpendPct * 100).toFixed(1)}%)</td><td class="p-2 text-right">${formatBRL(m.adSpendVal)}</td><td class="p-2 text-right">${(m.adSpendPct * 100).toFixed(1)}%</td></tr>
+                <tr class="font-bold bg-emerald-50 text-emerald-900"><td class="p-2">Lucro Líquido Real Ganho</td><td class="p-2 text-right">${formatBRL(m.netProfitVal)}</td><td class="p-2 text-right">${m.netMarginReal.toFixed(1)}%</td></tr>
             `;
+
+            document.getElementById('pdf-diagnosis').innerHTML = `
+                <strong>Diretriz Executiva:</strong> Para atingir a meta de margem floor de ${(m.marginFloorPct*100).toFixed(1)}%, o anúncio deve ser publicado por no mínimo <strong>${formatBRL(m.finalPrice)}</strong>. A cada venda realizada, <strong>${formatBRL(m.netProfitVal)}</strong> de lucro líquido limpo serão retidos após a quitação de todas as taxas da Shopee, custos tributários e reserva logística.
+            `;
+
             const element = document.getElementById('pdf-template');
-            const opt = { margin: 10, filename: 'Relatorio_PrecoMaster.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
+            const opt = {
+                margin: 10,
+                filename: `Relatorio_Shopee_PrecoMaster_${Date.now()}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
             html2pdf().set(opt).from(element).save();
         }
 
